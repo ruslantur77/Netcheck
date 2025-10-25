@@ -35,8 +35,27 @@ function App() {
           {/* Здесь вам в будущем понадобится защита маршрута (Private Route) */}
           <Route path="/agents" element={<AgentsPage />} />
 
-          {/* Необязательно: Страница 404 */}
-          <Route path="*" element={<h1>404: Страница не найдена</h1>} />
+         <Route path="*" element={
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <h1 style={{ color: 'black' }}>404: Страница не найдена</h1>
+              <button 
+                onClick={() => window.location.href = '/'}
+                style={{
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '24px'
+                }}
+              >
+                Вернуться на главную
+              </button>
+            </div>
+          } />
+
+
         </Routes>
       </div>
     </div>
