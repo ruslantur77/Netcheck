@@ -1,22 +1,22 @@
-// components/MainContainer.jsx (Финальная версия)
+// components/MainContainer.jsx
 
 import React, { useState } from 'react';
 import InputField from './InputField';
 import NavButtons from './NavButtons';
-import MapComponent from './MapComponent'; // <--- Импортируем компонент карты
-import InfoBlock from './InfoBlock';     // <--- Импортируем компонент инфоблока
+import MapComponent from './MapComponent'; 
+import InfoBlock from './InfoBlock';     
 import './MainContainer.css';
 
 // --- ЗАГЛУШКИ ДАННЫХ ---
 const DUMMY_DATA = {
-    center: [47.2357, 39.712], // Ростов-на-Дону
+    center: [47.2357, 39.712],
     countryData: 'Russia (Rostov, Rostov-on-Don)',
     ipAddress: '178.76.255.88',
     dnsAddresses: Array(7).fill('77.52.38.64') 
 };
 
 const DUMMY_INFO_DATA = [
-    { label: 'Host Name', value: 'ya.ru' },
+    { label: 'Host Name', value: '' },
     { label: 'IP Address', value: DUMMY_DATA.ipAddress },
     { label: 'Country', value: 'Russia' },
     { label: 'Region', value: 'Rostov-on-Don' },
@@ -37,13 +37,11 @@ const DUMMY_HTTP_DATA = [
     { label: 'Response Time', value: '85 ms' },
 ];
 
-// Функция для получения данных в зависимости от активной вкладки
 const getActiveTabData = (activeTab) => {
     switch(activeTab) {
         case 'Info':
             return { title: 'INFO', data: DUMMY_INFO_DATA };
         case 'Ping':
-            // Ping будет отображаться в нескольких блоках
             return [
                 { title: 'PING STATUS', data: DUMMY_PING_DATA },
                 { title: 'LATENCY CHART', data: [{ label: 'Graph', value: 'Coming soon...' }] }
@@ -61,8 +59,6 @@ const getActiveTabData = (activeTab) => {
     }
 };
 
-// ------------------------------------------------------------------
-
 function MainContainer() {
   const [target, setTarget] = useState('ya.ru');
   const [activeTab, setActiveTab] = useState('Info');
@@ -73,7 +69,6 @@ function MainContainer() {
   return (
     <div className="main-container">
       
-      {/* 1. Поле ввода */}
       <p className="label-text">Введите имя узла или IP адрес:</p>
       <InputField 
         value={target}
@@ -81,17 +76,13 @@ function MainContainer() {
         placeholder="Введите узел или IP адрес"
       />
       
-      {/* 2. Кнопки навигации */}
       <p className="label-text buttons-label">Информация для вашего IP:</p>
       <NavButtons 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
       />
-      
-      {/* 3. Карта и информационные блоки */}
       <div className="content-map-layout">
           
-          {/* Карта (SimpleMaps будет отрисован здесь) */}
           <MapComponent 
             center={DUMMY_DATA.center}
             countryData={DUMMY_DATA.countryData}
@@ -99,15 +90,12 @@ function MainContainer() {
             dnsAddresses={DUMMY_DATA.dnsAddresses}
           />
           
-          {/* Боковые информационные блоки */}
           <div className="info-blocks-wrapper">
               {isMultipleBlocks ? (
-                  // Отображение нескольких блоков (например, для Ping)
                   tabData.map((block, index) => (
                       <InfoBlock key={index} title={block.title} data={block.data} />
                   ))
               ) : (
-                  // Отображение одного блока (например, для Info)
                   <InfoBlock title={tabData.title} data={tabData.data} />
               )}
           </div>

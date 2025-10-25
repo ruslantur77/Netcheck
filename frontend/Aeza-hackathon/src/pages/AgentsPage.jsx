@@ -29,16 +29,11 @@ const MOCK_AGENTS_DATA = {
         },
     ],
 };
-// ------------------------------------------
 
-// --- Функции-заглушки для форматирования ---
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleString('ru-RU', { timeZoneName: 'short' });
 };
-// -------------------------------------------
-
-// --- Заглушки Компонентов ---
 
 const Table = ({ items, columns, onAction, onItemClick }) => {
     if (!items || items.length === 0) {
@@ -150,11 +145,9 @@ const Button = ({ title, onClick, disabled = false, style: customStyle = {} }) =
 );
 
 
-// 💡 НОВЫЙ КОМПОНЕНТ: AgentModal
 const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
     if (!isOpen) return null;
 
-    // Стили для модального окна
     const overlayStyle = {
         position: 'fixed',
         top: 0,
@@ -166,7 +159,6 @@ const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
-        // Позволяем закрывать окно по Esc
         tabIndex: -1,
     };
 
@@ -205,7 +197,6 @@ const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
         fontSize: '1em',
     };
     
-    // Используем стили из компонента Button, но с меньшим отступом
     const addButtonStyles = {
         padding: '10px 20px',
         backgroundColor: '#007bff', 
@@ -241,7 +232,7 @@ const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
                 <button 
                     style={addButtonStyles} 
                     onClick={onAddAgent}
-                    disabled={!name.trim()} // Отключаем, если имя пустое
+                    disabled={!name.trim()}
                 >
                     Добавить
                 </button>
@@ -251,7 +242,6 @@ const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
 };
 
 
-// --- КОНФИГУРАЦИЯ СТОЛБЦОВ ---
 const AGENT_COLUMNS = [
     { fieldName: 'id', columnName: 'ID' },
     { fieldName: 'name', columnName: 'Название' },
@@ -280,30 +270,26 @@ function AgentsPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [activeAgent, setActiveAgent] = useState(null); 
     
-    // 💡 НОВЫЕ СОСТОЯНИЯ ДЛЯ МОДАЛЬНОГО ОКНА
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newAgentName, setNewAgentName] = useState('');
     
-    // --- Логика Загрузки: загружаем все данные сразу ---
     const loadAgents = useCallback(async () => {
-        // Симулируем задержку сети
         await new Promise(resolve => setTimeout(resolve, 500)); 
         
         setAgents(MOCK_AGENTS_DATA.items);
         setErrorMessage('');
     }, []);
     
-    // --- Управление модальным окном ---
     
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setNewAgentName(''); // Очищаем имя при закрытии
+        setNewAgentName(''); 
     };
 
     const openCreateModal = () => {
         setIsModalOpen(true);
-        setNewAgentName(''); // Очищаем имя при открытии
-        setActiveAgent(null); // Закрываем детали, если были открыты
+        setNewAgentName(''); 
+        setActiveAgent(null); 
     };
 
     const handleAddAgent = () => {
@@ -311,10 +297,7 @@ function AgentsPage() {
             setErrorMessage('Имя агента не может быть пустым.');
             return;
         }
-
-        // МОКОВАЯ ЛОГИКА ДОБАВЛЕНИЯ АГЕНТА
         const newAgent = {
-            // Генерируем уникальный ID и фейковый ключ API
             id: `mock-${Date.now()}`, 
             api_key: `sk-mock-${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 5)}`,
             name: newAgentName.trim(),
@@ -322,7 +305,6 @@ function AgentsPage() {
             registered_at: new Date().toISOString(),
         };
 
-        // Добавляем нового агента в начало списка
         setAgents(prev => [newAgent, ...prev]);
         setErrorMessage(`[МОК] Агент "${newAgent.name}" успешно добавлен!`);
 
@@ -374,7 +356,6 @@ function AgentsPage() {
                     onClick={openCreateModal} 
                 />
                 
-                {/* 💡 КОМПОНЕНТ МОДАЛЬНОГО ОКНА ДОБАВЛЕНИЯ */}
                 <AgentModal
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}

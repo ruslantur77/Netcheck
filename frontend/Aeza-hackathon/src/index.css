@@ -9,14 +9,10 @@
 }
 
 body {
-  /* Убедитесь, что цвет фона совпадает */
   margin: 0;
   background-color: var(--background-color); 
-  color: var(--text-color); /* Добавим цвет текста, чтобы он не был черным */
+  color: var(--text-color); 
 }
-
-/* 3. Остальные стили для h1-h6 и p остаются как есть, */
-/* так как они уже используют переменные --font-heading и --font-subheading: */
 
 h1 {
   font-family: var(--font-heading);

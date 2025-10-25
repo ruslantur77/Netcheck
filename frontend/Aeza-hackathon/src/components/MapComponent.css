@@ -9,20 +9,17 @@
     overflow: hidden;
     border: 1px solid #c0c0c0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    
+
 }
 
-/* Контейнер, куда SimpleMaps будет рисовать карту */
 .simplemaps-map-canvas {
-    height: 400px; /* Фиксированная высота для корректной отрисовки карты */
+    height: 400px; 
 }
-
-/* --- Стили для наложенных информационных блоков --- */
 
 .map-overlay-info {
     position: absolute;
     z-index: 1000; 
-    background-color: rgba(255, 255, 255, 0.95); /* Полупрозрачный белый фон */
+    background-color: rgba(255, 255, 255, 0.95); 
     padding: 10px 15px;
     border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
@@ -31,21 +28,18 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Блок Country: Russia (правый верхний угол) */
 .map-overlay-info--country {
-    top: 20px;
+    top: 5%; 
     right: 20px;
     white-space: nowrap;
 }
 
-/* Блок IP addresses (левая часть) */
 .map-overlay-info--dns {
     top: 50%;
     left: 20px;
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    /* Граница и тень как на макете */
     border: 1px solid #dcdcdc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 15px;
@@ -68,63 +62,44 @@
     color: #000;
 }
 .map-overlay-info--ip {
-    top: 50px; 
-    left: 20px;
+    top: 10%; 
+    left: 40%;
     transform: translateY(-50%);
     display: flex;
-    
-    /* Стили для самого блока */
     font-size: 14px;
     white-space: nowrap;
     display: flex;
     align-items: center;
-    padding: 8px 12px; /* Меньше паддинг, чем у DNS блока */
+    padding: 8px 12px; 
 }
 
 .ip-highlight {
-    /* Синее оформление как на макете */
     background-color: #e6f0ff; 
     padding: 2px 5px;
     border-radius: 4px;
-    margin-left: 8px; /* Отступ от "IP:" */
+    margin-left: 8px; 
     border: 1px solid #c0d8ff;
     font-weight: 700;
     color: #000000;
 }
-/* components/MapComponent.css (Добавьте это в ваш файл) */
 
-/* СТИЛЬ ДЛЯ КРАСНОГО МАРКЕРА LEAFLET */
-.leaflet-blue-marker { /* ИЛИ ОСТАВЬТЕ .leaflet-red-marker, если не хотите менять JS */
-/* Обязательно! Leaflet по умолчанию ставит иконку 32x32, DivIcon может быть пустым. */
+.leaflet-blue-marker { 
 width: 16px !important;
 height: 16px !important;
-background-color: #3399FF; /* Яркий синий, как цвет ховера на макете */
+background-color: #3399FF;
 border-radius: 50%;
 border: 2px solid white; 
-box-shadow: 0 0 5px rgba(51, 153, 255, 0.5); /* Синяя тень для синего маркера */
+box-shadow: 0 0 5px rgba(51, 153, 255, 0.5);
 }
 
-/* Дополнительно: уберите дефолтную тень Leaflet, если она мешает */
 .leaflet-marker-icon {
-    border-radius: 50%; /* Если используете DivIcon */
-    /* background: none !important; */
-}
-/* components/MapComponent.css */
-
-/* Скрываем сам элемент управления зумом (если он не нужен) */
-.leaflet-control-zoom {
-    visibility: hidden;
+    border-radius: 50%; 
 }
 
-/* 1. СКРЫВАЕМ ЛОГОТИП LEAFLET (Сине-желтый квадрат) */
-/* Это элемент в правом нижнем углу */
 .leaflet-control-container .leaflet-control-attribution.leaflet-control {
-    /* Скрываем весь блок атрибуции, включая ссылку на Leaflet и OpenStreetMap */
     display: none !important;
 }
 
-/* Если вам нужно скрыть только ЛОГОТИП (тогда атрибуция останется) */
 .leaflet-control-container a.leaflet-control-attribution:nth-child(2) {
-    /* Этот селектор может быть ненадежным, лучше скрыть весь блок атрибуции, как выше */
     display: none !important; 
 }

@@ -3,18 +3,18 @@
 .input-wrapper {
     margin-bottom: 25px; 
     width: 100%;
-    max-width: 500px; /* Ограничиваем ширину поля, как на макете */
+    max-width: 500px;
 }
 
 .main-input {
     width: 100%;
     padding: 10px 15px;
     
-    background-color: #d7e6ff; /* Светло-серый фон */
+    background-color: #d7e6ff;
     border: none; 
     border-radius: 8px; 
     
-    color: black; /* Текст внутри поля - черный */
+    color: black;
     
     font-family: 'JetBrains Mono', monospace; 
     font-size: 16px;

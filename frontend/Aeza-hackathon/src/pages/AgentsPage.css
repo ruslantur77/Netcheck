@@ -1,22 +1,18 @@
-/* Добавьте эти стили в ваш глобальный CSS-файл (App.css или index.css) */
-
 .agents-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  /* Убрана margin-top, так как Header уже добавлен */
 }
 
 .agents-page {
   width: 90vw;
   max-width: 1280px;
-  /* margin-top: 4rem; // Если Header фиксированный, это нужно, иначе зависит от вашего App.jsx */
   margin-top: 20px;
   padding-bottom: 50px;
 }
 
 h1 {
-  color: #000; /* Черный текст */
+  color: #000; 
   font-family: 'JetBrains Mono', monospace;
 }

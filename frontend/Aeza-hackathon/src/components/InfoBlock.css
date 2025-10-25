@@ -6,14 +6,11 @@
     padding: 15px;
     margin-top: 2em;
     border-radius: 8px;
-    
     font-family: 'JetBrains Mono', monospace;
     color: black;
-    
-    /* Стилизация, как у других элементов (светлая рамка и тень) */
     border: 1px solid #dcdcdc;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px; /* Отступ между блоками, если их несколько */
+    margin-bottom: 10px; 
 }
 
 .info-block__title {
@@ -21,14 +18,14 @@
     font-weight: 700;
     margin-bottom: 10px;
     padding-bottom: 5px;
-    border-bottom: 1px dashed #e0e0e0; /* Пунктирная линия под заголовком */
+    border-bottom: 1px dashed #e0e0e0;
     text-transform: uppercase;
     color: #333; 
 }
 
 .info-block__entry {
     display: flex;
-    justify-content: space-between; /* Выравнивает label слева, value справа */
+    justify-content: space-between; 
     font-size: 14px;
     margin-bottom: 5px;
     padding: 2px 0;
@@ -37,12 +34,12 @@
 .info-block__label {
     font-weight: 500;
     color: #555;
-    flex-shrink: 0; /* Не сжимается */
+    flex-shrink: 0;
     margin-right: 10px;
 }
 
 .info-block__value {
     font-weight: 700;
     text-align: right;
-    word-break: break-all; /* Для длинных IP или URL */
+    word-break: break-all;
 }
