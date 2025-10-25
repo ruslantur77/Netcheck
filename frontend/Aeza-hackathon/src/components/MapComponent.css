@@ -1,0 +1,68 @@
+/* components/MapComponent.css */
+
+.map-wrapper {
+    flex: 2;
+    min-height: 400px;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #c0c0c0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Контейнер, куда SimpleMaps будет рисовать карту */
+.simplemaps-map-canvas {
+    width: 100%;
+    height: 400px; /* Фиксированная высота для корректной отрисовки карты */
+}
+
+/* --- Стили для наложенных информационных блоков --- */
+
+.map-overlay-info {
+    position: absolute;
+    z-index: 1000; 
+    background-color: rgba(255, 255, 255, 0.95); /* Полупрозрачный белый фон */
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: black;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Блок Country: Russia (правый верхний угол) */
+.map-overlay-info--country {
+    top: 20px;
+    right: 20px;
+    white-space: nowrap;
+}
+
+/* Блок IP addresses (левая часть) */
+.map-overlay-info--dns {
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    /* Граница и тень как на макете */
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+.dns-entry {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 5px;
+    padding: 2px 0;
+}
+
+.dns-label {
+    color: #444;
+}
+
+.dns-value {
+    font-weight: 700;
+    color: #000;
+}
