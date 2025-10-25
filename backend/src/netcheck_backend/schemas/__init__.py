@@ -9,6 +9,14 @@ from .agent import (
     AgentStatus,
     RMQCredentials,
 )
+from .check import (
+    CheckRequest,
+    CheckRequestBase,
+    CheckRequestInDB,
+    CheckResponse,
+    CheckResponseBase,
+    RequestType,
+)
 from .response import ErrorResponse
 from .token import (
     AccessTokenData,
@@ -48,4 +56,10 @@ __all__ = [
     "RMQCredentials",
     "AgentInDB",
     "AgentHeartbeat",
+    "CheckRequest",
+    "CheckRequestBase",
+    "CheckResponse",
+    "CheckResponseBase",
+    "RequestType",
+    "CheckRequestInDB",
 ]

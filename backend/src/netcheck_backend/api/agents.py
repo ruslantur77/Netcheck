@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from netcheck_backend.config import Config
 from netcheck_backend.dependencies import (
+    get_access_token_data,
     get_agent_cache_service,
     get_agent_service,
     get_auth_data,
@@ -26,6 +27,7 @@ from netcheck_backend.schemas import (
     TokenResponse,
     UserAuth,
 )
+from netcheck_backend.schemas.token import AccessTokenData
 from netcheck_backend.services import (
     AgentCacheService,
     AgentService,
@@ -51,12 +53,13 @@ async def create_agent(
     agent_data: AgentCreate,
     agent_service: Annotated[AgentService, Depends(get_agent_service)],
     config: Annotated[Config, Depends(get_config)],
+    access_token_data: Annotated[AccessTokenData, Depends(get_access_token_data)],
 ):
     uc = CreateAgentUseCase(
         agent_service=agent_service,
         rmq_admin_user=config.RMQ_USER,
         rmq_admin_pass=config.RMQ_PASS,
-        rmq_host=config.RMQ_HOST,
+        rmq_host=config.RMQ_MANAGEMENT_HOST,
     )
     res = await uc.execute(agent_data)
     return AgentResponse.model_validate(res)
@@ -67,6 +70,7 @@ async def get_agent(
     agent_id: UUID,
     agent_service: Annotated[AgentService, Depends(get_agent_service)],
     agent_cache_service: Annotated[AgentCacheService, Depends(get_agent_cache_service)],
+    access_token_data: Annotated[AccessTokenData, Depends(get_access_token_data)],
 ):
     try:
         agent = await agent_service.get(agent_id)
@@ -83,6 +87,7 @@ async def get_agent(
 async def get_all_agents(
     agent_service: Annotated[AgentService, Depends(get_agent_service)],
     agent_cache_service: Annotated[AgentCacheService, Depends(get_agent_cache_service)],
+    access_token_data: Annotated[AccessTokenData, Depends(get_access_token_data)],
 ):
     agents = await agent_service.get_all()
     responses = []
@@ -138,12 +143,13 @@ async def delete_agent(
     agent_service: Annotated[AgentService, Depends(get_agent_service)],
     agent_cache_service: Annotated[AgentCacheService, Depends(get_agent_cache_service)],
     config: Annotated[Config, Depends(get_config)],
+    access_token_data: Annotated[AccessTokenData, Depends(get_access_token_data)],
 ):
     uc = DeleteAgentUseCase(
         agent_service=agent_service,
         agent_cache_service=agent_cache_service,
         rmq_admin_user=config.RMQ_USER,
         rmq_admin_pass=config.RMQ_PASS,
-        rmq_host=config.RMQ_HOST,
+        rmq_host=config.RMQ_MANAGEMENT_HOST,
     )
     await uc.execute(agent_id)

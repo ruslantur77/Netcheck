@@ -1,10 +1,13 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel
 from sqlalchemy import DateTime, ForeignKey, text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from netcheck_backend.schemas.agent import AgentStatus
+from netcheck_backend.schemas.check import RequestType
 
 
 class Base(DeclarativeBase):
@@ -84,3 +87,46 @@ class AgentOrm(Base):
         self.rmq_request_queue = rmq_request_queue
         self.rmq_user = rmq_user
         self.rmq_password = rmq_password
+
+
+class CheckRequestOrm(Base):
+    __tablename__ = "check_request"
+
+    request_id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    request_type: Mapped[RequestType] = mapped_column(nullable=False)
+    host: Mapped[str]
+    port: Mapped[int | None] = mapped_column(nullable=True)
+
+    responses: Mapped[list["CheckResponseOrm"]] = relationship(
+        back_populates="request",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+
+    def __init__(self, request_type: RequestType, host: str, port: int | None):
+        self.request_type = request_type
+        self.host = host
+        self.port = port
+
+
+class CheckResponseOrm(Base):
+    __tablename__ = "check_responses"
+    agent_id: Mapped[UUID] = mapped_column(primary_key=True)
+    check_id: Mapped[UUID] = mapped_column(
+        ForeignKey(CheckRequestOrm.request_id), primary_key=True
+    )
+    success: Mapped[bool]
+    error: Mapped[str | None] = mapped_column(nullable=True)
+    result: Mapped[dict] = mapped_column(JSONB)
+
+    request: Mapped["CheckRequestOrm"] = relationship(back_populates="responses")
+
+    def __init__(
+        self, check_id: UUID, success: bool, error: str | None, result: BaseModel
+    ):
+        self.check_id = check_id
+        self.success = success
+        self.error = error
+        self.result = result.model_dump(mode="json")

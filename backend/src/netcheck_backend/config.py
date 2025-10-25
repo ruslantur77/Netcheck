@@ -28,9 +28,11 @@ class Config(BaseSettings):
 
     RMQ_RESPONSE_QUEUE: str
     RMQ_REQUEST_EXCHANGE: str
+    RMQ_REQUEST_ROUTING_KEY: str
     RMQ_USER: str
     RMQ_PASS: str
     RMQ_HOST: str
+    RMQ_MANAGEMENT_HOST: str
     RMQ_PORT: str
 
     REDIS_HOST: str

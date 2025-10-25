@@ -1,10 +1,13 @@
 from typing import Annotated
 
 import jwt
+from aio_pika.pool import Pool
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import ValidationError
 from redis.asyncio import Redis
+from rmq_service import ExchangeConfig, ProduceService
+from rmq_service.schemas import ExchangeType
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from netcheck_backend.config import config
@@ -17,6 +20,7 @@ from netcheck_backend.security import decode_jwt, oauth2_scheme
 from netcheck_backend.services import (
     AgentCacheService,
     AgentService,
+    CheckService,
     RefreshTokenService,
     UserService,
 )
@@ -38,12 +42,32 @@ def get_redis_client(req: Request):
     return req.app.state.redis_client  # type: ignore
 
 
+def get_check_request_produce_service(
+    channel_pool: Annotated[Pool, Depends(get_channel_pool)],
+):
+    return ProduceService(
+        channel_pool=channel_pool,
+        routing_key=config.RMQ_REQUEST_ROUTING_KEY,
+        exchange_config=ExchangeConfig(
+            name=config.RMQ_REQUEST_EXCHANGE, type=ExchangeType.FANOUT
+        ),
+    )
+
+
 def get_user_service(
     session_factory: Annotated[
         async_sessionmaker[AsyncSession], Depends(get_async_session_factory)
     ],
 ) -> UserService:
     return UserService(session_factory)
+
+
+def get_check_service(
+    session_factory: Annotated[
+        async_sessionmaker[AsyncSession], Depends(get_async_session_factory)
+    ],
+) -> CheckService:
+    return CheckService(session_factory)
 
 
 def get_token_service(
