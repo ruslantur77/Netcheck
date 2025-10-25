@@ -23,6 +23,6 @@ async def register_agent():
     ).model_dump(mode="json")
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=payload) as resp:
+        async with session.post(url, json=payload) as resp:
             res = await resp.json()
             return RegistrationResponse.model_validate(res)

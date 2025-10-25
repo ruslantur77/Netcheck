@@ -5,8 +5,7 @@ from logging import getLogger
 from uuid import UUID
 
 import aio_pika
-from rmq_service import ConsumeService, ExchangeConfig, ProduceService, QueueConfig
-from rmq_service.schemas import ExchangeType
+from rmq_service import ConsumeService, ProduceService, QueueConfig
 
 from netcheck_agent.config import get_config
 from netcheck_agent.http.heartbeat import send_heartbeat
@@ -54,9 +53,9 @@ async def setup_consumer(
     consumer = ConsumeService(
         channel_pool=channel_pool,
         queue_config=QueueConfig(name=rmq_credentials.request_queue),
-        exchange_config=ExchangeConfig(
-            name=rmq_credentials.request_exchange_name, type=ExchangeType.FANOUT
-        ),
+        # exchange_config=ExchangeConfig(
+        #     name=rmq_credentials.request_exchange_name, type=ExchangeType.FANOUT
+        # ),
     )
     await consumer.setup()
 
