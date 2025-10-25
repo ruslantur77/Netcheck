@@ -1,185 +1,259 @@
-// src/components/pages/SignInPage.jsx
-import React, { useState } from 'react';
+// src/components/pages/AgentsPage.jsx
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+// import api from '../../utils/api'; // ⚠️ Отключаем реальный API
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Используем стандартный импорт axios
 
-// --- Заглушки Компонентов (замените на свои реальные компоненты) ---
+// --- Моковые Данные (для демонстрации) ---
+const MOCK_AGENTS_DATA = {
+    items: [
+        {
+            id: 1,
+            name: 'Agent-Europe-01',
+            region: 'Germany (Frankfurt)',
+            local_ip: '192.168.1.10',
+            public_ip: '87.165.4.21',
+            status: 'active', // Активен
+            last_heartbeat: '2025-10-25T17:55:00Z',
+            created_at: '2025-09-01T10:00:00Z',
+        },
+        {
+            id: 2,
+            name: 'Agent-USA-Dallas',
+            region: 'USA (Dallas, TX)',
+            local_ip: '172.16.0.5',
+            public_ip: '104.28.1.12',
+            status: 'inactive', // Неактивен
+            last_heartbeat: '2025-10-25T16:00:00Z',
+            created_at: '2025-09-15T12:30:00Z',
+        },
+        {
+            id: 3,
+            name: 'Agent-Asia-Tokyo',
+            region: 'Japan (Tokyo)',
+            local_ip: '10.0.0.8',
+            public_ip: '133.12.3.45',
+            status: 'setup', // Ожидание
+            last_heartbeat: '2025-10-25T17:59:00Z',
+            created_at: '2025-10-20T09:00:00Z',
+        },
+    ],
+    // Пагинационные поля удалены
+};
+// ------------------------------------------
 
-// 1. Заглушка для Logo
-const Logo = () => <h1 style={{ marginBottom: '20px', color: '#333' }}>Project Logo</h1>;
+// --- Функции-заглушки для форматирования ---
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString('ru-RU', { timeZoneName: 'short' });
+};
+// -------------------------------------------
 
-// 2. Заглушка для AuthInput
-// В реальном проекте этот компонент должен управлять состоянием вводом
-const AuthInput = ({ title, type, isWrong, value, onChange }) => (
-  <div style={{ marginBottom: '15px' }}>
-    <label style={{ display: 'block', textAlign: 'left', marginBottom: '5px' }}>
-      {title.charAt(0).toUpperCase() + title.slice(1)}
-    </label>
-    <input
-      type={type}
-      placeholder={title}
-      value={value}
-      onChange={onChange}
-      style={{
-        width: '100%',
-        padding: '10px',
-        border: `1px solid ${isWrong ? 'red' : '#ccc'}`,
-        borderRadius: '4px',
-        boxSizing: 'border-box',
-      }}
-    />
-  </div>
-);
+// --- Заглушки Компонентов (без изменений, кроме удаления Pagination) ---
 
-// 3. Заглушка для ErrorMessage
-const ErrorMessage = ({ message }) => (
-  <p style={{ color: 'red', marginBottom: '15px', fontSize: '0.9em' }}>
-    {message}
-  </p>
-);
+const Table = ({ items, columns, onAction, onItemClick }) => {
+    if (!items || items.length === 0) {
+        return <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: 'JetBrains Mono, monospace' }}>Нет активных агентов.</p>;
+    }
 
-// 4. Заглушка для Button (Стилизован в синем цвете)
-const Button = ({ title, type, loading, onClick }) => (
-  <button
-    type={type}
-    disabled={loading}
-    onClick={onClick}
-    style={{
-      width: '100%',
-      padding: '12px',
-      backgroundColor: '#007bff', // Синий цвет
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: loading ? 'not-allowed' : 'pointer',
-      fontSize: '1em',
-      fontWeight: 'bold',
-      marginTop: '10px',
-      opacity: loading ? 0.6 : 1,
-      transition: 'background-color 0.3s',
-    }}
-  >
-    {loading ? 'Загрузка...' : title}
-  </button>
-);
-
-// --- Основной Компонент SignInPage ---
-
-const ERROR_MESSAGES = {
-  400: 'Неверный формат запроса. Проверьте введённые данные.',
-  422: 'Неверный формат запроса. Проверьте введённые данные.',
-  401: 'Неправильный логин или пароль.',
-  404: 'Сервис авторизации недоступен.',
-  500: 'Ошибка на сервере. Попробуйте позже.',
+    return (
+        <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse', 
+            marginTop: '20px', 
+            fontFamily: 'JetBrains Mono, monospace',
+            borderRadius: '8px',
+            overflow: 'hidden', 
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' 
+        }}>
+            <thead>
+                <tr style={{ 
+                    backgroundColor: '#007bff', 
+                    color: 'white', 
+                    borderBottom: '2px solid #ccc' 
+                }}>
+                    {columns.map(col => (
+                        <th key={col.fieldName} style={{ 
+                            padding: '12px 10px', 
+                            textAlign: 'left', 
+                            fontWeight: '700' 
+                        }}>{col.columnName}</th>
+                    ))}
+                    <th style={{ 
+                        padding: '12px 10px', 
+                        textAlign: 'right', 
+                        fontWeight: '700' 
+                    }}>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {items.map(item => (
+                    <tr 
+                        key={item.id} 
+                        style={{ 
+                            borderBottom: '1px solid #ddd', 
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s',
+                            backgroundColor: 'white', 
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        onClick={() => onItemClick(item)} 
+                    >
+                        {columns.map(col => (
+                            <td key={col.fieldName} style={{ padding: '10px', color: '#000' }}>
+                                {col.formatter ? col.formatter(item) : item[col.fieldName]}
+                            </td>
+                        ))}
+                        <td style={{ padding: '10px', textAlign: 'right' }}>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onAction(item.id, 'delete'); }}
+                                style={{ 
+                                    backgroundColor: 'red', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    padding: '5px 10px', 
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontFamily: 'JetBrains Mono, monospace'
+                                }}
+                            >
+                                Удалить
+                            </button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
 };
 
-function SignInPage() {
-  const navigate = useNavigate();
+const ErrorMessage = ({ message }) => (
+    <p style={{ color: 'red', marginBottom: '15px', fontSize: '0.9em', fontFamily: 'JetBrains Mono, monospace' }}>
+        {message}
+    </p>
+);
 
-  // Состояния для полей ввода
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Button = ({ title, onClick, disabled = false }) => (
+    <button
+        onClick={onClick}
+        disabled={disabled}
+        style={{
+            padding: '10px 20px',
+            backgroundColor: '#007bff', 
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            fontSize: '1em',
+            fontWeight: 'bold',
+            marginTop: '20px',
+            fontFamily: 'JetBrains Mono, monospace',
+        }}
+    >
+        {title}
+    </button>
+);
 
-  // Состояния для ошибок валидации
-  const [emailWrong, setEmailWrong] = useState(false);
-  const [passwordWrong, setPasswordWrong] = useState(false);
+// Компонент Pagination удален, так как пагинация больше не используется.
 
-  // Состояние для загрузки и общей ошибки
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+// --- КОНФИГУРАЦИЯ СТОЛБЦОВ ---
+const AGENT_COLUMNS = [
+    { fieldName: 'name', columnName: 'Название' },
+    { fieldName: 'region', columnName: 'Геолокация' },
+    { 
+        fieldName: 'status', 
+        columnName: 'Статус',
+        formatter: (item) => {
+            if (item.status === 'active') return 'Активен';
+            if (item.status === 'inactive') return 'Неактивен';
+            if (item.status === 'setup') return 'Первоначальная настройка';
+            return 'N/A';
+        }
+    },
+    { 
+        fieldName: 'last_heartbeat', 
+        columnName: 'Хартбит',
+        formatter: (item) => formatDate(item.last_heartbeat)
+    },
+    { fieldName: 'public_ip', columnName: 'IP' },
+    { 
+        fieldName: 'created_at', 
+        columnName: 'Дата создания',
+        formatter: (item) => formatDate(item.created_at)
+    },
+];
 
-  // Валидация полей
-  const validateFields = () => {
-    const isEmailValid = !!email.trim();
-    const isPasswordValid = !!password.trim();
+function AgentsPage() {
+    const navigate = useNavigate();
+    
+    // 💡 Упрощенное состояние: только список агентов
+    const [agents, setAgents] = useState([]);
+    
+    const [errorMessage, setErrorMessage] = useState('');
+    const [activeAgent, setActiveAgent] = useState(null); 
+    
+    // --- Логика Загрузки: загружаем все данные сразу (без пагинации) ---
+    const loadAgents = useCallback(async () => {
+        // Симулируем задержку сети
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+        
+        // Загружаем все items
+        setAgents(MOCK_AGENTS_DATA.items);
+        setErrorMessage('');
+    }, []);
 
-    setEmailWrong(!isEmailValid);
-    setPasswordWrong(!isPasswordValid);
+    // --- Обработчики действий (заглушки) ---
 
-    return isEmailValid && isPasswordValid;
-  };
+    const openCreateModal = () => {
+        console.log('Кнопка "Добавить Агента" нажата. Открываем модалку...');
+        setActiveAgent({}); 
+    };
 
-  // Обработка отправки формы
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+    const handleShowAgent = (agent) => {
+        console.log('Клик по агенту:', agent);
+        setActiveAgent({ ...agent }); 
+    };
 
-    // Сброс предыдущих ошибок
-    setEmailWrong(false);
-    setPasswordWrong(false);
-    setErrorMessage('');
+    const handleAgentDelete = (id) => {
+        if (!window.confirm(`[МОК] Вы уверены, что хотите удалить агента ID: ${id}?`)) return;
 
-    if (!validateFields()) return;
+        console.log(`[МОК] Удаляем агента ${id}...`);
+        
+        const updatedItems = agents.filter(item => item.id !== id);
+        setAgents(updatedItems);
+        
+        setErrorMessage(`[МОК] Агент ${id} удален! (В консоли)`);
+        setActiveAgent(null);
+    };
+    
+    useEffect(() => {
+        loadAgents();
+    }, [loadAgents]); 
 
-    setLoading(true);
-
-    try {
-      // Использование FormData для отправки данных (как в оригинальном Vue коде)
-      const form = new FormData();
-      form.append('username', email); // Обратите внимание: Vue использовал 'username' для email
-      form.append('password', password);
-
-      // Предполагая, что ваш axios настроен для baseURL. Если нет, используйте полный URL.
-      const response = await axios.post('/api/auth/login', form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
-
-      // Успешный вход
-      const accessToken = response.data.access_token;
-      localStorage.setItem('token', accessToken);
-      
-      // Настройка заголовка Authorization для всех последующих запросов
-      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-      
-      // Перенаправление на страницу агентов (или куда нужно, например, /agents)
-      navigate('/agents'); 
-    } catch (err) {
-      // Отображение ошибок валидации для полей
-      setEmailWrong(true);
-      setPasswordWrong(true);
-
-      // Обработка ошибок сервера
-      if (err.response) {
-        const status = err.response.status;
-        setErrorMessage(
-          ERROR_MESSAGES[status] || 'Произошла неизвестная ошибка.'
-        );
-      } else {
-        setErrorMessage('Не удалось подключиться к серверу.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="auth-wrapper">
-      <div className="auth-page">
-        <Logo />
-        <form noValidate onSubmit={handleSubmit}>
-          <AuthInput
-            title="email"
-            type="email"
-            isWrong={emailWrong}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <AuthInput
-            title="password"
-            type="password"
-            isWrong={passwordWrong}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          
-          {errorMessage && <ErrorMessage message={errorMessage} />}
-          
-          <Button title="Вход" type="submit" loading={loading} />
-          
-          {/* Удален блок регистрации, как вы просили */}
-        </form>
-      </div>
-    </div>
-  );
+    return (
+        <div className="agents-wrapper">
+            
+            <div className="agents-page">
+                <h1 style={{ fontFamily: 'JetBrains Mono, monospace', color: '#000', marginTop: '4rem' }}>Управление Агентами</h1>
+                
+                {errorMessage && <ErrorMessage message={errorMessage} />}
+                
+                <Table 
+                    items={agents} // Используем обновленный state
+                    columns={AGENT_COLUMNS} 
+                    onItemClick={handleShowAgent}
+                    onAction={handleAgentDelete} 
+                />
+                
+                <Button 
+                    title="Добавить Агента" 
+                    onClick={openCreateModal} 
+                />
+                
+            </div>
+        </div>
+    );
 }
 
-export default SignInPage;
+export default AgentsPage;
