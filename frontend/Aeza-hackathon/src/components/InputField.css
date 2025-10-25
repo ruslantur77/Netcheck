@@ -1,0 +1,27 @@
+/* components/InputField.css */
+
+.input-wrapper {
+    margin-bottom: 25px; 
+    width: 100%;
+    max-width: 500px; /* Ограничиваем ширину поля, как на макете */
+}
+
+.main-input {
+    width: 100%;
+    padding: 10px 15px;
+    
+    background-color: #d7e6ff; /* Светло-серый фон */
+    border: none; 
+    border-radius: 8px; 
+    
+    color: black; /* Текст внутри поля - черный */
+    
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.main-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(135, 206, 250, 0.5); 
+}

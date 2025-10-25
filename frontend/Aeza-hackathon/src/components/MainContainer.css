@@ -1,0 +1,29 @@
+/* components/MainContainer.css */
+
+/* MAIN-CONTAINER: Общий контейнер для всего контента */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    
+    font-family: 'JetBrains Mono', monospace;
+    
+    /* !!! ИСПРАВЛЕНИЕ: Делаем текст ЧЕРНЫМ */
+    color: black; 
+    
+    /* Убеждаемся, что контент выровнен по левому краю (по умолчанию) */
+    text-align: left;
+}
+
+/* Общие стили для заголовков/лейблов внутри контейнера */
+.label-text {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    /* Текст должен быть черным */
+    color: black; 
+}
+
+.buttons-label {
+    margin-top: 20px;
+}

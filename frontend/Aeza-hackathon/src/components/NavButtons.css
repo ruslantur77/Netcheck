@@ -1,0 +1,46 @@
+/* components/NavButtons.css */
+
+.button-bar {
+    display: flex;
+    /* Разрешаем перенос на следующую строку, если не помещаются */
+    flex-wrap: wrap; 
+    gap: 15px; /* Расстояние между кнопками */
+    margin-bottom: 25px; /* Отступ до карты */
+}
+
+.nav-button {
+    /* Общий вид кнопки */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    
+    padding: 8px 15px;
+    cursor: pointer;
+    
+    /* Стилизация, как на макете */
+    background-color: transparent; /* Прозрачный фон */
+    color: black; 
+    border: 1px solid #c0c0c0; /* Светлая рамка */
+    border-radius: 5px; /* Округлая форма */
+    
+    /* Добавляем тень, чтобы кнопки "выступали" (аналог box-shadow) */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    
+    /* Эффект перехода для плавности */
+    transition: all 0.2s ease-in-out;
+    user-select: none; /* Текст не выделяется */
+}
+
+/* Стили для активной (нажатой) кнопки */
+.nav-button.active {
+    /* Делаем кнопку темнее или сдвигаем вниз, имитируя нажатие */
+    background-color: #e0e0e0; /* Более темный фон */
+    border-color: #a0a0a0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset; /* Тень внутрь */
+    transform: translateY(1px); /* Небольшой сдвиг вниз */
+}
+
+/* Стили при наведении */
+.nav-button:hover:not(.active) {
+    background-color: #f0f0f0;
+}

@@ -1,5 +1,4 @@
 .header {
-    background-color: #1a1a1a; 
     height: 35px; 
     width: 100%;
     position: relative; 
@@ -22,7 +21,7 @@
 .header__text {
     font-family: 'JetBrains Mono', monospace; 
     font-weight: 700; 
-    font-size: 18px;
+    font-size: 20px;
     margin: 0;
     line-height: 1.5; 
 }
