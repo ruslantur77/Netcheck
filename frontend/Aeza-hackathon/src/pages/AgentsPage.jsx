@@ -4,12 +4,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 // import api from '../../utils/api'; // ⚠️ Отключаем реальный API
 import { useNavigate } from 'react-router-dom';
 
-// --- Моковые Данные (для демонстрации) ---
 const MOCK_AGENTS_DATA = {
     items: [
         {
             id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-            api_key: 'sk-d5X9yA2pL8qB3cR7zW4eG1tJ0hF6kM0', // 💡 Ключ API полностью виден
+            api_key: 'sk-d5X9yA2pL8qB3cR7zW4eG1tJ0hF6kM0',
             name: 'Agent-Europe-01',
             status: 'active', 
             registered_at: '2025-09-01T10:00:00Z',
@@ -25,18 +24,16 @@ const MOCK_AGENTS_DATA = {
             id: '5f6d7e8a-1b2c-3d4e-5f6a-7b8c9d0e1f2a',
             api_key: 'sk-zW1xC9vB5nK2mL7jH4gF0dA3sE6rT9y',
             name: 'Agent-Asia-Tokyo',
-            status: 'setup', // Первоначальная настройка
+            status: 'setup', 
             registered_at: '2025-10-20T09:00:00Z',
         },
     ],
-    // Пагинационные поля удалены
 };
 // ------------------------------------------
 
 // --- Функции-заглушки для форматирования ---
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    // Используем registered_at вместо created_at
     return new Date(dateString).toLocaleString('ru-RU', { timeZoneName: 'short' });
 };
 // -------------------------------------------
@@ -54,7 +51,6 @@ const Table = ({ items, columns, onAction, onItemClick }) => {
             borderCollapse: 'collapse', 
             marginTop: '20px', 
             fontFamily: 'JetBrains Mono, monospace',
-            // Скругление и синий заголовок
             borderRadius: '8px',
             overflow: 'hidden', 
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' 
@@ -97,7 +93,6 @@ const Table = ({ items, columns, onAction, onItemClick }) => {
                             <td key={col.fieldName} style={{ 
                                 padding: '10px', 
                                 color: '#000',
-                                // Для API Key и ID используем моноширинный шрифт для лучшей читаемости
                                 fontFamily: (col.fieldName === 'api_key' || col.fieldName === 'id') ? 'monospace' : 'JetBrains Mono, monospace'
                             }}>
                                 {col.formatter ? col.formatter(item) : item[col.fieldName]}
@@ -132,7 +127,7 @@ const ErrorMessage = ({ message }) => (
     </p>
 );
 
-const Button = ({ title, onClick, disabled = false }) => (
+const Button = ({ title, onClick, disabled = false, style: customStyle = {} }) => (
     <button
         onClick={onClick}
         disabled={disabled}
@@ -147,22 +142,124 @@ const Button = ({ title, onClick, disabled = false }) => (
             fontWeight: 'bold',
             marginTop: '20px',
             fontFamily: 'JetBrains Mono, monospace',
+            ...customStyle, // Для переопределения стилей
         }}
     >
         {title}
     </button>
 );
 
+
+// 💡 НОВЫЙ КОМПОНЕНТ: AgentModal
+const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
+    if (!isOpen) return null;
+
+    // Стили для модального окна
+    const overlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        // Позволяем закрывать окно по Esc
+        tabIndex: -1,
+    };
+
+    const contentStyle = {
+        backgroundColor: 'white',
+        padding: '30px',
+        borderRadius: '8px',
+        width: '400px',
+        maxWidth: '90%',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5)',
+        position: 'relative',
+        fontFamily: 'JetBrains Mono, monospace',
+    };
+
+    const closeButtonStyle = {
+        position: 'absolute',
+        top: '10px',
+        right: '15px',
+        border: 'none',
+        backgroundColor: 'transparent',
+        fontSize: '1.5em',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        color: '#333',
+        lineHeight: '1',
+    };
+
+    const inputStyle = {
+        width: '100%',
+        padding: '10px',
+        margin: '10px 0 20px 0',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
+        boxSizing: 'border-box',
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: '1em',
+    };
+    
+    // Используем стили из компонента Button, но с меньшим отступом
+    const addButtonStyles = {
+        padding: '10px 20px',
+        backgroundColor: '#007bff', 
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontSize: '1em',
+        fontWeight: 'bold',
+        fontFamily: 'JetBrains Mono, monospace',
+        float: 'right',
+        marginTop: '0', 
+    };
+
+    return (
+        <div style={overlayStyle} onClick={onClose}>
+            <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+                <button style={closeButtonStyle} onClick={onClose}>&times;</button>
+                <h2 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}>Добавить нового Агента</h2>
+                <div style={{ marginBottom: '10px' }}>
+                    <label>
+                    <h4 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}> Название агента:</h4>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Например, s1tr1ing1"
+                            style={inputStyle}
+                        />
+                    </label>
+                </div>
+                
+                <button 
+                    style={addButtonStyles} 
+                    onClick={onAddAgent}
+                    disabled={!name.trim()} // Отключаем, если имя пустое
+                >
+                    Добавить
+                </button>
+            </div>
+        </div>
+    );
+};
+
+
 // --- КОНФИГУРАЦИЯ СТОЛБЦОВ ---
 const AGENT_COLUMNS = [
     { fieldName: 'id', columnName: 'ID' },
     { fieldName: 'name', columnName: 'Название' },
-    { fieldName: 'api_key', columnName: 'Ключ API' }, // 💡 Полностью видимый ключ
+    { fieldName: 'api_key', columnName: 'Ключ API' }, 
     { 
         fieldName: 'status', 
         columnName: 'Статус',
         formatter: (item) => {
-            // Учитываем все три статуса
             if (item.status === 'active') return 'Активен';
             if (item.status === 'inactive') return 'Неактивен';
             if (item.status === 'setup') return 'Первоначальная настройка';
@@ -183,6 +280,10 @@ function AgentsPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [activeAgent, setActiveAgent] = useState(null); 
     
+    // 💡 НОВЫЕ СОСТОЯНИЯ ДЛЯ МОДАЛЬНОГО ОКНА
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newAgentName, setNewAgentName] = useState('');
+    
     // --- Логика Загрузки: загружаем все данные сразу ---
     const loadAgents = useCallback(async () => {
         // Симулируем задержку сети
@@ -191,17 +292,50 @@ function AgentsPage() {
         setAgents(MOCK_AGENTS_DATA.items);
         setErrorMessage('');
     }, []);
-
-    // --- Обработчики действий (заглушки) ---
+    
+    // --- Управление модальным окном ---
+    
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setNewAgentName(''); // Очищаем имя при закрытии
+    };
 
     const openCreateModal = () => {
-        console.log('Кнопка "Добавить Агента" нажата. Открываем модалку...');
-        setActiveAgent({}); 
+        setIsModalOpen(true);
+        setNewAgentName(''); // Очищаем имя при открытии
+        setActiveAgent(null); // Закрываем детали, если были открыты
     };
+
+    const handleAddAgent = () => {
+        if (!newAgentName.trim()) {
+            setErrorMessage('Имя агента не может быть пустым.');
+            return;
+        }
+
+        // МОКОВАЯ ЛОГИКА ДОБАВЛЕНИЯ АГЕНТА
+        const newAgent = {
+            // Генерируем уникальный ID и фейковый ключ API
+            id: `mock-${Date.now()}`, 
+            api_key: `sk-mock-${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 5)}`,
+            name: newAgentName.trim(),
+            status: 'setup', 
+            registered_at: new Date().toISOString(),
+        };
+
+        // Добавляем нового агента в начало списка
+        setAgents(prev => [newAgent, ...prev]);
+        setErrorMessage(`[МОК] Агент "${newAgent.name}" успешно добавлен!`);
+
+        handleCloseModal();
+    };
+
+    // --- Обработчики действий (прочие) ---
 
     const handleShowAgent = (agent) => {
         console.log('Клик по агенту:', agent);
+        // В реальном проекте: открыли бы модальное окно с деталями агента
         setActiveAgent({ ...agent }); 
+        setErrorMessage(`[МОК] Вы кликнули по агенту: ${agent.name}. Детали в консоли.`);
     };
 
     const handleAgentDelete = (id) => {
@@ -212,7 +346,7 @@ function AgentsPage() {
         const updatedItems = agents.filter(item => item.id !== id);
         setAgents(updatedItems);
         
-        setErrorMessage(`[МОК] Агент ${id} удален! (В консоли)`);
+        setErrorMessage(`[МОК] Агент ${id} удален!`);
         setActiveAgent(null);
     };
     
@@ -238,6 +372,15 @@ function AgentsPage() {
                 <Button 
                     title="Добавить Агента" 
                     onClick={openCreateModal} 
+                />
+                
+                {/* 💡 КОМПОНЕНТ МОДАЛЬНОГО ОКНА ДОБАВЛЕНИЯ */}
+                <AgentModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onAddAgent={handleAddAgent}
+                    name={newAgentName}
+                    setName={setNewAgentName}
                 />
             </div>
         </div>
