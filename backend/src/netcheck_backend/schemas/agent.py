@@ -16,12 +16,20 @@ class AgentCreate(BaseModel):
     name: str
 
 
+class AgentInfo(BaseModel):
+    hostname: str
+    region: str
+    local_ip: str
+    public_ip: str
+
+
 class AgentResponse(BaseModel):
     api_key: str | None
     id: UUID
     name: str
     registered_at: datetime
     status: AgentStatus
+    agent_info: AgentInfo | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -30,13 +38,6 @@ class AgentResponse(BaseModel):
         if model.status != AgentStatus.SETUP:
             model.api_key = None
         return model
-
-
-class AgentInfo(BaseModel):
-    hostname: str
-    region: str
-    local_ip: str
-    public_ip: str
 
 
 class AgentRegistrationRequest(AgentInfo):
@@ -64,3 +65,7 @@ class AgentInDB(AgentResponse):
     rmq_request_queue: str
     rmq_user: str
     rmq_password: str
+
+
+class AgentHeartbeat(BaseModel):
+    agent_id: UUID

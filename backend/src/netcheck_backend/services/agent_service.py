@@ -4,7 +4,6 @@ from uuid import UUID
 from redis.asyncio import Redis
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from netcheck_backend.exceptions import AlreadyExistsError, NotFoundError
@@ -117,10 +116,10 @@ class AgentCacheService:
         if not info:
             return None
         return AgentInfo(
-            hostname=info[b"hostname"].decode("utf-8"),
-            region=info[b"region"].decode("utf-8"),
-            local_ip=info[b"local_ip"].decode("utf-8"),
-            public_ip=info[b"public_ip"].decode("utf-8"),
+            hostname=info["hostname"],
+            region=info["region"],
+            local_ip=info["local_ip"],
+            public_ip=info["public_ip"],
         )
 
     async def delete_agent_info(self, agent_id: UUID) -> None:

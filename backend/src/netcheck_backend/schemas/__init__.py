@@ -1,5 +1,6 @@
 from .agent import (
     AgentCreate,
+    AgentHeartbeat,
     AgentInDB,
     AgentInfo,
     AgentRegistrationRequest,
@@ -46,4 +47,5 @@ __all__ = [
     "AgentStatus",
     "RMQCredentials",
     "AgentInDB",
+    "AgentHeartbeat",
 ]
