@@ -3,11 +3,20 @@ from uuid import UUID
 
 from rmq_service import Message, ProduceService
 
-from netcheck_agent.checks import BaseChecker, HttpChecker
+from netcheck_agent.checks import (
+    BaseChecker,
+    DnsChecker,
+    HttpChecker,
+    PingChecker,
+    TcpChecker,
+)
 from netcheck_agent.schemas import CheckRequestRMQ, CheckResponseRMQ, RequestType
 
 checkers: dict[RequestType, type[BaseChecker]] = {
     RequestType.HTTP: HttpChecker,
+    RequestType.DNS: DnsChecker,
+    RequestType.PING: PingChecker,
+    RequestType.TCP_CONNECT: TcpChecker,
 }
 
 
