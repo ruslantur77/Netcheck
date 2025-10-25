@@ -1,6 +1,6 @@
 // App.jsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // Импортируем Routes и Route
+import { Routes, Route } from 'react-router-dom'; 
 import Header from './components/Header';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
@@ -22,17 +22,13 @@ function App() {
         countryData={userLocation}
       />
 
-      {/* Контейнер для смены контента */}
       <div className="content-area">
         <Routes>
-          {/* Путь: / (Главная страница) */}
           <Route path="/" element={<HomePage />} />
           
-          {/* Путь: /signin (Страница входа) */}
           <Route path="/signin" element={<SignInPage />} />
           
-          {/* Путь: /agents (Страница админов) */}
-          {/* Здесь вам в будущем понадобится защита маршрута (Private Route) */}
+
           <Route path="/agents" element={<AgentsPage />} />
 
          <Route path="*" element={
