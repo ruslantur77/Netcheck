@@ -4,6 +4,7 @@ import React from 'react';
 import Header from './components/Header';
 import MainContainer from './components/MainContainer'; 
 import './App.css'; 
+import 'leaflet/dist/leaflet.css';
 
 function App() {
   const userIp = '178.76.255.88';
