@@ -18,6 +18,7 @@ class Config(BaseSettings):
     REGISTRATION_URL: str
     REGION: str
     GET_IP_API_URL: str
+    NUM_WORKERS: int
 
     model_config = SettingsConfigDict(env_file=".env")
 
