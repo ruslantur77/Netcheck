@@ -1,0 +1,36 @@
+.header {
+    background-color: #1a1a1a; 
+    height: 35px; 
+    width: 100%;
+    position: relative; 
+}
+
+
+.header__content {
+    background-color: white;
+    padding: 20px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    transform: translateY(-35px); 
+    display: flex;
+    gap: 30px;
+    border-radius: 0 0 10px 10px; 
+    color: black; 
+
+}
+
+.header__text {
+    font-family: 'JetBrains Mono', monospace; 
+    font-weight: 700; 
+    font-size: 18px;
+    margin: 0;
+    line-height: 1.5; 
+}
+
+.header__ip-box {
+    background-color: #f0f4f8; 
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
