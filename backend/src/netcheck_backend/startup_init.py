@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 import aio_pika
 from fastapi import FastAPI
+from redis.asyncio import Redis
 
 from netcheck_backend.config import config
 from netcheck_backend.database import init_database
@@ -29,6 +30,12 @@ def get_channel_pools():
 async def startup_event(app: FastAPI):
     app.state.db_engine, app.state.session_factory = await init_database()
     app.state.connection_pool, app.state.channel_pool = get_channel_pools()
+    app.state.redis_client = Redis(
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        password=config.REDIS_PASSWORD,
+        decode_responses=True,
+    )
 
     delete_expired_tokens_task_scheduler = setup_tasks(app.state.session_factory)
     logger.info("DB started")
@@ -40,5 +47,6 @@ async def startup_event(app: FastAPI):
     await app.state.channel_pool.close()
     await app.state.connection_pool.close()
     await app.state.db_engine.dispose()
+    await app.state.redis_client.close()
 
     logger.info("App stopped")

@@ -31,6 +31,10 @@ class Config(BaseSettings):
     RMQ_HOST: str
     RMQ_PORT: str
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
+
     @property
     def RMQ_URL(self) -> str:
         return (

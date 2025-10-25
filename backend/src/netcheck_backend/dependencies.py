@@ -4,6 +4,7 @@ import jwt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import ValidationError
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from netcheck_backend.config import config
@@ -22,6 +23,10 @@ def get_async_session_factory(req: Request):
 
 def get_channel_pool(req: Request):
     return req.app.state.channel_pool  # type: ignore
+
+
+def get_redis_client(req: Request):
+    return req.app.state.redis_client  # type: ignore
 
 
 def get_user_service(
