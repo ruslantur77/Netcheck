@@ -14,6 +14,8 @@ logger = getLogger(__name__)
 
 
 async def callback(producer: ProduceService, data: bytes, **kwargs):
+    logger.info(f"Received request: {data.decode()}")
+
     request = CheckRequestRMQ.model_validate_json(data)
 
     checker = checkers.get(request.request_type)

@@ -7,6 +7,8 @@ import aio_pika
 from rmq_service import ConsumeService, ExchangeConfig, ProduceService, QueueConfig
 from rmq_service.schemas import ExchangeType
 
+from netcheck_agent.config import get_config
+from netcheck_agent.http.heartbeat import send_heartbeat
 from netcheck_agent.http.registration import register_agent
 from netcheck_agent.logger import setup_logger
 from netcheck_agent.requests_handler import callback
@@ -42,8 +44,11 @@ async def setup_producer(
 
 
 async def setup_consumer(
-    channel_pool, rmq_credentials: RMQCredentials, producer: ProduceService
-) -> tuple[ConsumeService, asyncio.Task]:
+    channel_pool,
+    rmq_credentials: RMQCredentials,
+    producer: ProduceService,
+    num_workers: int,
+) -> tuple[ConsumeService, list[asyncio.Task]]:
     consumer = ConsumeService(
         channel_pool=channel_pool,
         queue_config=QueueConfig(name=rmq_credentials.request_queue),
@@ -52,11 +57,26 @@ async def setup_consumer(
         ),
     )
     await consumer.setup()
-    task = asyncio.create_task(consumer.consume(callback=partial(callback, producer)))
-    return consumer, task
+
+    tasks = [
+        asyncio.create_task(consumer.consume(callback=partial(callback, producer)))
+        for _ in range(num_workers)
+    ]
+    return consumer, tasks
+
+
+async def heartbeat_loop(heartbeat_endpoint: str, agent_id: str, interval_sec: int):
+    while True:
+        try:
+            await send_heartbeat(heartbeat_endpoint, agent_id)
+            logger.debug("Heartbeat sent successfully")
+        except Exception as e:
+            logger.error(f"Heartbeat failed: {e}")
+        await asyncio.sleep(interval_sec)
 
 
 async def main():
+    config = get_config()
     try:
         register_response = await register_agent()
     except Exception:
@@ -70,10 +90,19 @@ async def main():
         channel_pool=channel_pool,
         rmq_credentials=register_response.rmq_credentials,
     )
-    consumer, consume_task = await setup_consumer(
+    consumer, consume_tasks = await setup_consumer(
         channel_pool=channel_pool,
         rmq_credentials=register_response.rmq_credentials,
         producer=producer,
+        num_workers=config.NUM_WORKERS,
+    )
+
+    heartbeat_task = asyncio.create_task(
+        heartbeat_loop(
+            heartbeat_endpoint=register_response.heartbeat_endpoint,
+            agent_id=str(register_response.agent_id),
+            interval_sec=register_response.heartbeat_interval_sec,
+        )
     )
 
     stop_event = asyncio.Event()
@@ -90,9 +119,12 @@ async def main():
 
     await stop_event.wait()
 
-    consume_task.cancel()
+    consumer.stop()
+    for i in consume_tasks:
+        i.cancel()
+    heartbeat_task.cancel()
     try:
-        await consume_task
+        await asyncio.gather(*consume_tasks, heartbeat_task)
     except asyncio.CancelledError:
         logger.info("Consumer task cancelled")
     except NotImplementedError:

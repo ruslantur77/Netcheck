@@ -33,8 +33,8 @@ class RegistrationInfo(AgentInfo):
 class RegistrationResponse(BaseModel):
     rmq_credentials: RMQCredentials
     agent_id: UUID
-    refresh_token: str
-    access_token: str
+    heartbeat_interval_sec: int
+    heartbeat_endpoint: str
 
 
 class RequestType(str, Enum):
