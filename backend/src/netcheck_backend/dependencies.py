@@ -14,7 +14,12 @@ from netcheck_backend.schemas import (
     UserAuth,
 )
 from netcheck_backend.security import decode_jwt, oauth2_scheme
-from netcheck_backend.services import RefreshTokenService, UserService
+from netcheck_backend.services import (
+    AgentCacheService,
+    AgentService,
+    RefreshTokenService,
+    UserService,
+)
 
 
 def get_async_session_factory(req: Request):
@@ -43,6 +48,20 @@ def get_token_service(
     ],
 ) -> RefreshTokenService:
     return RefreshTokenService(session_factory)
+
+
+def get_agent_service(
+    session_factory: Annotated[
+        async_sessionmaker[AsyncSession], Depends(get_async_session_factory)
+    ],
+) -> AgentService:
+    return AgentService(session_factory)
+
+
+def get_agent_cache_service(
+    redis_client: Annotated[Redis, Depends(get_redis_client)],
+) -> AgentCacheService:
+    return AgentCacheService(redis_client)
 
 
 def get_refresh_token_from_cookies(request: Request):

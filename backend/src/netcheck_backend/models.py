@@ -1,8 +1,10 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey, DateTime, text
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+from sqlalchemy import DateTime, ForeignKey, text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from netcheck_backend.schemas.agent import AgentStatus
 
 
 class Base(DeclarativeBase):
@@ -49,3 +51,36 @@ class RefreshTokensOrm(Base):
         self.user_id = user_id
         self.token_hash = token_hash
         self.expires_at = expires_at
+
+
+class AgentOrm(Base):
+    __tablename__ = "agents"
+
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    name: Mapped[str] = mapped_column(unique=True)
+    registered_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("TIMEZONE('utc', now())")
+    )
+    status: Mapped[AgentStatus] = mapped_column(
+        server_default=text(f"'{AgentStatus.SETUP.value.upper()}'"), nullable=False
+    )
+    api_key: Mapped[str] = mapped_column(
+        server_default=text("gen_random_uuid()"), unique=True
+    )
+    rmq_request_queue: Mapped[str] = mapped_column(unique=True)
+    rmq_user: Mapped[str] = mapped_column()
+    rmq_password: Mapped[str] = mapped_column()
+
+    def __init__(
+        self,
+        name: str,
+        rmq_request_queue: str,
+        rmq_user: str,
+        rmq_password: str,
+    ):
+        self.name = name
+        self.rmq_request_queue = rmq_request_queue
+        self.rmq_user = rmq_user
+        self.rmq_password = rmq_password

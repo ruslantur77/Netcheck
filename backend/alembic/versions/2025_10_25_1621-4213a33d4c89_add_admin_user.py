@@ -27,7 +27,7 @@ def upgrade() -> None:
         column("id", sa.Uuid),
         column("email", sa.String),
         column("hashed_password", sa.String),
-        column("registered_at", sa.DateTime),
+        column("registered_at", sa.DateTime(timezone=True)),
     )
 
     admin_id = uuid4()

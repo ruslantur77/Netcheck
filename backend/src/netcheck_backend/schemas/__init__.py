@@ -1,3 +1,13 @@
+from .agent import (
+    AgentCreate,
+    AgentInDB,
+    AgentInfo,
+    AgentRegistrationRequest,
+    AgentRegistrationResponse,
+    AgentResponse,
+    AgentStatus,
+    RMQCredentials,
+)
 from .response import ErrorResponse
 from .token import (
     AccessTokenData,
@@ -28,4 +38,12 @@ __all__ = [
     "UserResponse",
     "UserRmqData",
     "ErrorResponse",
+    "AgentCreate",
+    "AgentInfo",
+    "AgentRegistrationRequest",
+    "AgentRegistrationResponse",
+    "AgentResponse",
+    "AgentStatus",
+    "RMQCredentials",
+    "AgentInDB",
 ]

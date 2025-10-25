@@ -26,6 +26,7 @@ class Config(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int
     SECRET_KEY: str
 
+    RMQ_RESPONSE_QUEUE: str
     RMQ_USER: str
     RMQ_PASS: str
     RMQ_HOST: str
