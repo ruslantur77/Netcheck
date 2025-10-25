@@ -1,4 +1,5 @@
 from logging import getLogger
+from uuid import UUID
 
 from rmq_service import Message, ProduceService
 
@@ -13,7 +14,7 @@ checkers: dict[RequestType, type[BaseChecker]] = {
 logger = getLogger(__name__)
 
 
-async def callback(producer: ProduceService, data: bytes, **kwargs):
+async def callback(producer: ProduceService, agent_id: UUID, data: bytes, **kwargs):
     logger.info(f"Received request: {data.decode()}")
 
     request = CheckRequestRMQ.model_validate_json(data)
@@ -31,5 +32,6 @@ async def callback(producer: ProduceService, data: bytes, **kwargs):
         error=response.error,
         latency_ms=response.latency_ms,
         timestamp=response.timestamp,
+        agent_id=agent_id,
     )
     await producer.produce(Message.from_json(response_rmq.model_dump(mode="json")))

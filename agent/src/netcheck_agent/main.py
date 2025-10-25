@@ -2,6 +2,7 @@ import asyncio
 import signal
 from functools import partial
 from logging import getLogger
+from uuid import UUID
 
 import aio_pika
 from rmq_service import ConsumeService, ExchangeConfig, ProduceService, QueueConfig
@@ -48,6 +49,7 @@ async def setup_consumer(
     rmq_credentials: RMQCredentials,
     producer: ProduceService,
     num_workers: int,
+    agent_id: UUID,
 ) -> tuple[ConsumeService, list[asyncio.Task]]:
     consumer = ConsumeService(
         channel_pool=channel_pool,
@@ -59,7 +61,9 @@ async def setup_consumer(
     await consumer.setup()
 
     tasks = [
-        asyncio.create_task(consumer.consume(callback=partial(callback, producer)))
+        asyncio.create_task(
+            consumer.consume(callback=partial(callback, producer, agent_id))
+        )
         for _ in range(num_workers)
     ]
     return consumer, tasks
@@ -95,6 +99,7 @@ async def main():
         rmq_credentials=register_response.rmq_credentials,
         producer=producer,
         num_workers=config.NUM_WORKERS,
+        agent_id=register_response.agent_id,
     )
 
     heartbeat_task = asyncio.create_task(

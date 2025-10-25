@@ -84,3 +84,4 @@ class CheckResponse(CheckResponseBase):
 
 class CheckResponseRMQ(CheckResponse):
     request_id: UUID
+    agent_id: UUID
