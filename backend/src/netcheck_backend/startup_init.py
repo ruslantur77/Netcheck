@@ -36,7 +36,7 @@ async def response_callback(check_service: CheckResponseService, data: bytes, **
     try:
         response = CheckResponse.model_validate_json(data)
         await check_service.create(response)
-    except Exception as e:
+    except Exception:
         logger.error(
             f"Error validating failed reminder. Raw data: {data}", exc_info=True
         )

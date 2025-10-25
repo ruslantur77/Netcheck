@@ -1,19 +1,13 @@
-from datetime import UTC, datetime
 from uuid import UUID
 
-from redis.asyncio import Redis
-from sqlalchemy import delete, select
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from netcheck_backend.exceptions import AlreadyExistsError, NotFoundError
+from netcheck_backend.exceptions import NotFoundError
 from netcheck_backend.models import CheckRequestOrm, CheckResponseOrm
 from netcheck_backend.schemas import (
-    CheckRequest,
     CheckRequestBase,
     CheckRequestInDB,
     CheckResponse,
-    CheckResponseBase,
 )
 
 

@@ -1,7 +1,6 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel
 from sqlalchemy import DateTime, ForeignKey, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
