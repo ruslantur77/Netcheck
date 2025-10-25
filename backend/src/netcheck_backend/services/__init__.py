@@ -1,5 +1,5 @@
 from .agent_service import AgentCacheService, AgentService
-from .check_service import CheckService
+from .check_service import CheckResponseService, CheckService
 from .token_service import RefreshTokenService
 from .user_service import UserService
 
@@ -9,4 +9,5 @@ __all__ = [
     "AgentService",
     "AgentCacheService",
     "CheckService",
+    "CheckResponseService",
 ]

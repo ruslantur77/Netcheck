@@ -114,19 +114,31 @@ class CheckRequestOrm(Base):
 class CheckResponseOrm(Base):
     __tablename__ = "check_responses"
     agent_id: Mapped[UUID] = mapped_column(primary_key=True)
-    check_id: Mapped[UUID] = mapped_column(
+    request_id: Mapped[UUID] = mapped_column(
         ForeignKey(CheckRequestOrm.request_id), primary_key=True
     )
     success: Mapped[bool]
     error: Mapped[str | None] = mapped_column(nullable=True)
     result: Mapped[dict] = mapped_column(JSONB)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    latency_ms: Mapped[float]
 
     request: Mapped["CheckRequestOrm"] = relationship(back_populates="responses")
 
     def __init__(
-        self, check_id: UUID, success: bool, error: str | None, result: BaseModel
+        self,
+        agent_id: UUID,
+        request_id: UUID,
+        success: bool,
+        error: str | None,
+        result: dict | None,
+        timestamp: datetime,
+        latency_ms: float | None,
     ):
-        self.check_id = check_id
+        self.agent_id = agent_id
+        self.request_id = request_id
         self.success = success
         self.error = error
-        self.result = result.model_dump(mode="json")
+        self.result = result if result else {}
+        self.timestamp = timestamp
+        self.latency_ms = latency_ms if latency_ms is not None else -1.0

@@ -52,6 +52,7 @@ class RMQCredentials(BaseModel):
     rmq_password: str
     rmq_host: str
     rmq_port: str
+    vhost: str
 
 
 class AgentRegistrationResponse(BaseModel):

@@ -20,6 +20,7 @@ from netcheck_backend.security import decode_jwt, oauth2_scheme
 from netcheck_backend.services import (
     AgentCacheService,
     AgentService,
+    CheckResponseService,
     CheckService,
     RefreshTokenService,
     UserService,
@@ -47,7 +48,7 @@ def get_check_request_produce_service(
 ):
     return ProduceService(
         channel_pool=channel_pool,
-        routing_key=config.RMQ_REQUEST_ROUTING_KEY,
+        routing_key="",
         exchange_config=ExchangeConfig(
             name=config.RMQ_REQUEST_EXCHANGE, type=ExchangeType.FANOUT
         ),
@@ -60,6 +61,14 @@ def get_user_service(
     ],
 ) -> UserService:
     return UserService(session_factory)
+
+
+def get_check_response_service(
+    session_factory: Annotated[
+        async_sessionmaker[AsyncSession], Depends(get_async_session_factory)
+    ],
+) -> CheckResponseService:
+    return CheckResponseService(session_factory)
 
 
 def get_check_service(

@@ -71,6 +71,7 @@ async def check(
     message = Message.from_json(
         CheckRequest.model_validate(res).model_dump(mode="json")
     )
+    await produce_service.setup()
     await produce_service.produce(message)
     return res
 

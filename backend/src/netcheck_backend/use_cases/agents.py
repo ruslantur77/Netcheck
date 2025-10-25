@@ -6,22 +6,19 @@ from uuid import UUID
 
 import aiohttp
 
-from netcheck_backend.exceptions import AlreadyExistsError, NotFoundError
 from netcheck_backend.schemas import (
     AgentCreate,
     AgentInDB,
-    AgentRegistrationResponse,
     AgentStatus,
 )
-from netcheck_backend.schemas.agent import AgentInfo, AgentRegistrationRequest
+from netcheck_backend.schemas.agent import AgentRegistrationRequest
 from netcheck_backend.services.agent_service import AgentCacheService, AgentService
-
-VHOST = "agents_vhost"
 
 
 def generate_password(length=20) -> str:
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    safe_chars = string.ascii_letters + string.digits + "-_.~!$&'()*+,;="
+    password = "".join(secrets.choice(safe_chars) for _ in range(length))
+    return password
 
 
 def sanitize_agent_name(name: str) -> str:
@@ -35,12 +32,18 @@ class CreateAgentUseCase:
         rmq_admin_user: str,
         rmq_admin_pass: str,
         rmq_host: str,
-        rmq_port: int = 15672,
+        rmq_port: int,
+        rmq_agents_vhost: str,
+        response_queue: str,
+        request_exchange: str,
     ) -> None:
         self.agent_service = agent_service
         self.rmq_admin_user = rmq_admin_user
         self.rmq_admin_pass = rmq_admin_pass
+        self.rmq_agents_vhost = rmq_agents_vhost
         self.rmq_host = f"{rmq_host}:{rmq_port}"
+        self.response_queue = response_queue
+        self.request_exchange = request_exchange
 
     async def register_agent(self, agent_name: str) -> dict:
         agent_name = sanitize_agent_name(agent_name)
@@ -48,14 +51,14 @@ class CreateAgentUseCase:
         password = generate_password()
 
         queue_in = f"agent.{agent_name}.in"
-        queue_out = "agents.out"
+        exchange_type = "fanout"
 
         headers = {"content-type": "application/json"}
         auth = aiohttp.BasicAuth(self.rmq_admin_user, self.rmq_admin_pass)
 
         async with aiohttp.ClientSession(auth=auth) as session:
             # Создание vhost
-            vhost_encoded = quote(VHOST, safe="")
+            vhost_encoded = quote(self.rmq_agents_vhost, safe="")
             async with session.put(
                 f"{self.rmq_host}/api/vhosts/{vhost_encoded}", headers=headers
             ) as resp:
@@ -73,7 +76,7 @@ class CreateAgentUseCase:
 
             # Выставление прав
             configure_regex = f"^agent\\.{agent_name}\\.in$"
-            write_regex = f"^{queue_out}$"
+            write_regex = "^amq\\.default$"
             read_regex = f"^{queue_in}$"
 
             async with session.put(
@@ -85,7 +88,7 @@ class CreateAgentUseCase:
                     "read": read_regex,
                 },
             ) as resp:
-                resp.raise_for_status()  # 204 No Content, JSON не парсим
+                resp.raise_for_status()
 
             # Создание очереди
             queue_encoded = quote(queue_in, safe="")
@@ -96,12 +99,32 @@ class CreateAgentUseCase:
             ) as resp:
                 resp.raise_for_status()
 
+            exchange_encoded = quote(self.request_exchange, safe="")
+            async with session.put(
+                f"{self.rmq_host}/api/exchanges/{vhost_encoded}/{exchange_encoded}",
+                headers=headers,
+                json={
+                    "type": exchange_type,
+                    "durable": True,
+                    "auto_delete": False,
+                    "arguments": {},
+                },
+            ) as resp:
+                resp.raise_for_status()
+
+            # Привязка очереди к fanout exchange
+            async with session.post(
+                f"{self.rmq_host}/api/bindings/{vhost_encoded}/e/{exchange_encoded}/q/{queue_encoded}",
+                headers=headers,
+                json={"routing_key": "", "arguments": {}},
+            ) as resp:
+                resp.raise_for_status()
+
         return {
             "username": username,
             "password": password,
             "queue_in": queue_in,
-            "queue_out": queue_out,
-            "vhost": VHOST,
+            "vhost": self.rmq_agents_vhost,
         }
 
     async def execute(self, agent_create: AgentCreate) -> AgentInDB:
@@ -125,13 +148,15 @@ class DeleteAgentUseCase:
         rmq_admin_user: str,
         rmq_admin_pass: str,
         rmq_host: str,
-        rmq_port: int = 15672,
+        rmq_port: int,
+        rmq_agents_vhost: str,
     ) -> None:
         self.agent_service = agent_service
         self.rmq_admin_user = rmq_admin_user
         self.rmq_admin_pass = rmq_admin_pass
         self.rmq_host = f"{rmq_host}:{rmq_port}"
         self.agent_cache_service = agent_cache_service
+        self.rmq_agents_vhost = rmq_agents_vhost
 
     async def delete_agent_resources(self, agent_name: str):
         agent_name = sanitize_agent_name(agent_name)
@@ -140,7 +165,7 @@ class DeleteAgentUseCase:
 
         headers = {"content-type": "application/json"}
         auth = aiohttp.BasicAuth(self.rmq_admin_user, self.rmq_admin_pass)
-        vhost_encoded = quote(VHOST, safe="")
+        vhost_encoded = quote(self.rmq_agents_vhost, safe="")
 
         async with aiohttp.ClientSession(auth=auth) as session:
             async with session.delete(

@@ -1,19 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from netcheck_backend.config import Config
 from netcheck_backend.dependencies import (
     get_access_token_data,
     get_agent_cache_service,
     get_agent_service,
-    get_auth_data,
     get_config,
-    get_refresh_token_data,
-    get_secret_key,
-    get_token_service,
-    get_user_service,
 )
 from netcheck_backend.schemas import (
     AgentCreate,
@@ -21,23 +16,12 @@ from netcheck_backend.schemas import (
     AgentRegistrationRequest,
     AgentRegistrationResponse,
     AgentResponse,
-    ErrorResponse,
-    RefreshTokenData,
     RMQCredentials,
-    TokenResponse,
-    UserAuth,
 )
 from netcheck_backend.schemas.token import AccessTokenData
 from netcheck_backend.services import (
     AgentCacheService,
     AgentService,
-    RefreshTokenService,
-    UserService,
-)
-from netcheck_backend.use_cases import (
-    AuthUseCase,
-    CreateTokenPairUseCase,
-    RefreshTokenPairUseCase,
 )
 from netcheck_backend.use_cases.agents import (
     CreateAgentUseCase,
@@ -60,6 +44,10 @@ async def create_agent(
         rmq_admin_user=config.RMQ_USER,
         rmq_admin_pass=config.RMQ_PASS,
         rmq_host=config.RMQ_MANAGEMENT_HOST,
+        rmq_port=int(config.RMQ_MANAGEMENT_PORT),
+        rmq_agents_vhost=config.RMQ_AGENTS_VHOST,
+        request_exchange=config.RMQ_REQUEST_EXCHANGE,
+        response_queue=config.RMQ_RESPONSE_QUEUE,
     )
     res = await uc.execute(agent_data)
     return AgentResponse.model_validate(res)
@@ -95,7 +83,7 @@ async def get_all_agents(
         agent_info = await agent_cache_service.get_agent_info(agent.id)
         responses.append(
             AgentResponse(
-                **agent.model_dump(exclude=["agent_info"]), agent_info=agent_info
+                **agent.model_dump(exclude=["agent_info"]), agent_info=agent_info  # type: ignore
             )
         )
     return responses
@@ -103,7 +91,7 @@ async def get_all_agents(
 
 @router.post("/heartbeat", status_code=status.HTTP_204_NO_CONTENT)
 async def agent_heartbeat(
-    heartbeat: Annotated[AgentHeartbeat, Depends()],
+    heartbeat: AgentHeartbeat,
     agent_cache_service: Annotated[AgentCacheService, Depends(get_agent_cache_service)],
 ):
     await agent_cache_service.set_agent_heartbeat(heartbeat.agent_id)
@@ -130,6 +118,7 @@ async def register_agent(
             rmq_password=res.rmq_password,
             rmq_host=config.RMQ_HOST,
             rmq_port=config.RMQ_PORT,
+            vhost=config.RMQ_AGENTS_VHOST,
         ),
         agent_id=res.id,
         heartbeat_interval_sec=config.AGENT_HEARTBEAT_INTERVAL_SEC,
@@ -151,5 +140,7 @@ async def delete_agent(
         rmq_admin_user=config.RMQ_USER,
         rmq_admin_pass=config.RMQ_PASS,
         rmq_host=config.RMQ_MANAGEMENT_HOST,
+        rmq_port=int(config.RMQ_MANAGEMENT_PORT),
+        rmq_agents_vhost=config.RMQ_AGENTS_VHOST,
     )
     await uc.execute(agent_id)

@@ -41,20 +41,13 @@ class CheckRequestInDB(CheckRequest):
 class CheckResponseBase(BaseModel):
     success: bool
     error: str | None = None
-    result: BaseModel | None = None
+    result: dict | None = None
     latency_ms: float | None = None
     timestamp: datetime
-
-    @field_serializer("result")
-    def serialize_result(self, result: BaseModel | None, info):
-        if result is None:
-            return {}
-        mode = info.mode
-        context = info.context
-        return result.model_dump(mode=mode, context=context)
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CheckResponse(CheckResponseBase):
     request_id: UUID
+    agent_id: UUID

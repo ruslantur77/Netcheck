@@ -1,8 +1,8 @@
-"""add checks table
+"""add checks models
 
-Revision ID: 1ee13bd33c69
+Revision ID: 4ef40f626291
 Revises: 1d598ab862df
-Create Date: 2025-10-25 23:14:08.447832
+Create Date: 2025-10-26 01:07:13.671821
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "1ee13bd33c69"
+revision: str = "4ef40f626291"
 down_revision: Union[str, Sequence[str], None] = "1d598ab862df"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,17 +49,19 @@ def upgrade() -> None:
     )
     op.create_table(
         "check_responses",
-        sa.Column("check_id", sa.Uuid(), nullable=False),
+        sa.Column("agent_id", sa.Uuid(), nullable=False),
+        sa.Column("request_id", sa.Uuid(), nullable=False),
         sa.Column("success", sa.Boolean(), nullable=False),
         sa.Column("error", sa.String(), nullable=True),
         sa.Column(
             "result", postgresql.JSONB(astext_type=sa.Text()), nullable=False
         ),
+        sa.Column("timestamp", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
-            ["check_id"],
+            ["request_id"],
             ["check_request.request_id"],
         ),
-        sa.PrimaryKeyConstraint("check_id"),
+        sa.PrimaryKeyConstraint("agent_id", "request_id"),
     )
     # ### end Alembic commands ###
 

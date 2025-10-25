@@ -40,3 +40,24 @@ class CheckService:
             if result is None:
                 raise NotFoundError("No check request")
             return CheckRequestInDB.model_validate(result)
+
+
+class CheckResponseService:
+    def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
+        self.session_factory = session_factory
+
+    async def create(self, check_response: CheckResponse) -> CheckResponse:
+        async with self.session_factory() as session:
+            new_check = CheckResponseOrm(
+                agent_id=check_response.agent_id,
+                request_id=check_response.request_id,
+                success=check_response.success,
+                error=check_response.error,
+                result=check_response.result,
+                timestamp=check_response.timestamp,
+                latency_ms=check_response.latency_ms,
+            )
+            session.add(new_check)
+            await session.commit()
+            await session.refresh(new_check)
+            return CheckResponse.model_validate(new_check)

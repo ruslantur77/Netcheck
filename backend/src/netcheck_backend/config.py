@@ -34,6 +34,8 @@ class Config(BaseSettings):
     RMQ_HOST: str
     RMQ_MANAGEMENT_HOST: str
     RMQ_PORT: str
+    RMQ_MANAGEMENT_PORT: str
+    RMQ_AGENTS_VHOST: str
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -44,9 +46,7 @@ class Config(BaseSettings):
 
     @property
     def RMQ_URL(self) -> str:
-        return (
-            f"amqp://{self.RMQ_USER}:{self.RMQ_PASS}@{self.RMQ_HOST}:{self.RMQ_PORT}/"
-        )
+        return f"amqp://{self.RMQ_USER}:{self.RMQ_PASS}@{self.RMQ_HOST}:{self.RMQ_PORT}/{self.RMQ_AGENTS_VHOST}"
 
     @property
     def DB_URL(self) -> str:
