@@ -22,6 +22,10 @@ from netcheck_backend.services import (
 )
 
 
+def get_config():
+    return config
+
+
 def get_async_session_factory(req: Request):
     return req.app.state.session_factory  # type: ignore
 

@@ -27,6 +27,7 @@ class Config(BaseSettings):
     SECRET_KEY: str
 
     RMQ_RESPONSE_QUEUE: str
+    RMQ_REQUEST_EXCHANGE: str
     RMQ_USER: str
     RMQ_PASS: str
     RMQ_HOST: str
@@ -35,6 +36,9 @@ class Config(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_PASSWORD: str
+
+    AGENT_HEARTBEAT_INTERVAL_SEC: int
+    AGENT_HEARTBEAT_TIMEOUT_SEC: int
 
     @property
     def RMQ_URL(self) -> str:

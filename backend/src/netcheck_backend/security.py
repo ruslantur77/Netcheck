@@ -58,6 +58,3 @@ def create_refresh_token(data: RefreshTokenData, secret_key: str) -> GeneratedTo
 
 def decode_jwt(token: str, secret_key: str):
     return jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-
-
-print(get_hash("adminpassword"))
