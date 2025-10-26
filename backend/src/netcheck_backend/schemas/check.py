@@ -57,3 +57,7 @@ class CheckResponse(CheckResponseBase):
 
 class CheckResponseWithAgentInfo(CheckResponse):
     agent_info: AgentInfo | None
+
+
+class CheckRequestResponse(CheckRequest):
+    responses: list[CheckResponseWithAgentInfo]
