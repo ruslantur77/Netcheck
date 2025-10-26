@@ -98,7 +98,7 @@ class AgentCacheService:
         heartbeat_str = await self.redis.get(f"agent:{agent_id}:heartbeat")
         if heartbeat_str is None:
             return None
-        return datetime.fromisoformat(heartbeat_str.decode("utf-8"))
+        return datetime.fromisoformat(heartbeat_str)
 
     async def set_agent_info(self, agent_id: UUID, info: AgentInfo) -> None:
         await self.redis.hset(

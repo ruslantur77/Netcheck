@@ -1,4 +1,5 @@
 from .agent import (
+    Agent,
     AgentCreate,
     AgentHeartbeat,
     AgentInDB,
@@ -15,6 +16,7 @@ from .check import (
     CheckRequestInDB,
     CheckResponse,
     CheckResponseBase,
+    CheckResponseWithAgentInfo,
     RequestType,
 )
 from .response import ErrorResponse
@@ -35,6 +37,7 @@ from .user import (
 )
 
 __all__ = [
+    "AgentResponse",
     "AccessTokenData",
     "GeneratedToken",
     "RefreshTokenData",
@@ -51,7 +54,7 @@ __all__ = [
     "AgentInfo",
     "AgentRegistrationRequest",
     "AgentRegistrationResponse",
-    "AgentResponse",
+    "Agent",
     "AgentStatus",
     "RMQCredentials",
     "AgentInDB",
@@ -62,4 +65,5 @@ __all__ = [
     "CheckResponseBase",
     "RequestType",
     "CheckRequestInDB",
+    "CheckResponseWithAgentInfo",
 ]

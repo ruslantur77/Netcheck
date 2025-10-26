@@ -5,16 +5,19 @@ from fastapi import APIRouter, Depends
 from rmq_service import Message, ProduceService
 
 from netcheck_backend.dependencies import (
+    get_agent_cache_service,
     get_check_request_produce_service,
     get_check_service,
 )
 from netcheck_backend.schemas import (
     CheckRequest,
     CheckRequestBase,
+    CheckResponseWithAgentInfo,
 )
 from netcheck_backend.services import (
     CheckService,
 )
+from netcheck_backend.services.agent_service import AgentCacheService
 
 router = APIRouter(prefix="/api/v1/check", tags=["check"])
 
@@ -40,5 +43,16 @@ async def check(
 async def get_check_task(
     task_id: UUID,
     check_service: Annotated[CheckService, Depends(get_check_service)],
+    agent_cache_service: Annotated[AgentCacheService, Depends(get_agent_cache_service)],
 ):
-    return await check_service.get(task_id)
+    res = await check_service.get(task_id)
+    responses = []
+    for i in res.responses:
+        agent_info = await agent_cache_service.get_agent_info(i.agent_id)
+        responses.append(
+            CheckResponseWithAgentInfo(
+                **i.model_dump(mode="json"), agent_info=agent_info
+            )
+        )
+
+    return responses

@@ -2,7 +2,9 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, field_serializer, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
+
+from .agent import AgentInfo
 
 
 class RequestType(str, Enum):
@@ -51,3 +53,7 @@ class CheckResponseBase(BaseModel):
 class CheckResponse(CheckResponseBase):
     request_id: UUID
     agent_id: UUID
+
+
+class CheckResponseWithAgentInfo(CheckResponse):
+    agent_info: AgentInfo | None

@@ -23,7 +23,7 @@ class AgentInfo(BaseModel):
     public_ip: str
 
 
-class AgentResponse(BaseModel):
+class Agent(BaseModel):
     api_key: str | None
     id: UUID
     name: str
@@ -38,6 +38,10 @@ class AgentResponse(BaseModel):
         if model.status != AgentStatus.SETUP:
             model.api_key = None
         return model
+
+
+class AgentResponse(Agent):
+    heartbeat: datetime | None = None
 
 
 class AgentRegistrationRequest(AgentInfo):
@@ -62,7 +66,7 @@ class AgentRegistrationResponse(BaseModel):
     heartbeat_endpoint: str
 
 
-class AgentInDB(AgentResponse):
+class AgentInDB(Agent):
     rmq_request_queue: str
     rmq_user: str
     rmq_password: str

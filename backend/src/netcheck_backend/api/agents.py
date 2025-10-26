@@ -64,6 +64,7 @@ async def get_agent(
         agent = await agent_service.get(agent_id)
         agent = AgentResponse.model_validate(agent)
         agent.agent_info = await agent_cache_service.get_agent_info(agent_id)
+        agent.heartbeat = await agent_cache_service.get_agent_heartbeat(agent_id)
         return agent
     except Exception:
         raise HTTPException(
@@ -81,9 +82,12 @@ async def get_all_agents(
     responses = []
     for agent in agents:
         agent_info = await agent_cache_service.get_agent_info(agent.id)
+        heartbeat = await agent_cache_service.get_agent_heartbeat(agent.id)
         responses.append(
             AgentResponse(
-                **agent.model_dump(exclude=["agent_info"]), agent_info=agent_info  # type: ignore
+                **agent.model_dump(exclude=["agent_info"]),  # type: ignore
+                agent_info=agent_info,
+                heartbeat=heartbeat
             )
         )
     return responses
