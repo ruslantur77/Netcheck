@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,7 +45,11 @@ class Config(BaseSettings):
     AGENT_HEARTBEAT_INTERVAL_SEC: int
     AGENT_HEARTBEAT_TIMEOUT_SEC: int
 
-    ALLOWED_ORIGINS: str
+    allowed_origins_raw: str = Field(..., alias="ALLOWED_ORIGINS")
+
+    @property
+    def ALLOWED_ORIGINS(self) -> list[str]:
+        return [origin.strip() for origin in self.allowed_origins_raw.split(",")]
 
     @property
     def RMQ_URL(self) -> str:

@@ -12,6 +12,7 @@ from netcheck_backend.dependencies import (
 from netcheck_backend.schemas import (
     CheckRequest,
     CheckRequestBase,
+    CheckRequestResponse,
     CheckResponseWithAgentInfo,
 )
 from netcheck_backend.services import (
@@ -55,4 +56,6 @@ async def get_check_task(
             )
         )
 
-    return responses
+    return CheckRequestResponse(
+        **res.model_dump(mode="json", exclude=["responses"]), responses=responses
+    )

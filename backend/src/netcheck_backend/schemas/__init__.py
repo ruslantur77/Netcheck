@@ -14,6 +14,7 @@ from .check import (
     CheckRequest,
     CheckRequestBase,
     CheckRequestInDB,
+    CheckRequestResponse,
     CheckResponse,
     CheckResponseBase,
     CheckResponseWithAgentInfo,
@@ -37,6 +38,7 @@ from .user import (
 )
 
 __all__ = [
+    "CheckRequestResponse",
     "AgentResponse",
     "AccessTokenData",
     "GeneratedToken",
