@@ -2,21 +2,16 @@
 
 import axios from 'axios';
 
-// --- НАВИГАЦИЯ ДЛЯ АВТОРИЗАЦИИ (для перенаправления при 401) ---
 
 let globalNavigate = (path) => {
     console.error(`Router not initialized. Tried to navigate to: ${path}`);
 };
 
-/**
- * Устанавливает функцию навигации из роутера (например, useHistory или useNavigate)
- * для перенаправления пользователя при истечении срока действия refresh-токена.
- */
+
 export const setGlobalNavigator = (navigateFunction) => {
     globalNavigate = navigateFunction;
 };
 
-// --- БАЗОВАЯ НАСТРОЙКА AXIOS И ИНТЕРЦЕПТОРЫ АВТОРИЗАЦИИ ---
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
@@ -32,28 +27,23 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
-// Интерцептор запросов: Добавляем токен доступа
 instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
 
-// Интерцептор ответов: Обрабатываем 401 (обновление токена)
+
 instance.interceptors.response.use(
     (res) => res,
     async (err) => {
         const originalRequest = err.config;
 
-        // Пропускаем, если нет запроса, или это запрос, который не требует обновления токена
         if (!originalRequest || originalRequest.skipRefresh || originalRequest._retry) {
             return Promise.reject(err);
         }
 
-        // 401 Unauthorized
         if (err.response?.status === 401) {
-
-            // Если токен уже обновляется, ставим запрос в очередь
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -63,28 +53,19 @@ instance.interceptors.response.use(
                 });
             }
 
-            // Начинаем обновление токена
             originalRequest._retry = true;
             isRefreshing = true;
 
             try {
-                // 1. Запрос на обновление токена (отмечен как skipRefresh: true)
                 const { data } = await instance.post('/api/auth/refresh', null, { skipRefresh: true });
                 localStorage.setItem('token', data.access_token);
                 instance.defaults.headers.Authorization = `Bearer ${data.access_token}`;
-
-                // 2. Выполняем все отложенные запросы
                 processQueue(null, data.access_token);
-
-                // 3. Повторяем оригинальный запрос с новым токеном
                 originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
                 return instance(originalRequest);
             } catch (error) {
-                // Ошибка обновления токена (refresh токен просрочен)
                 processQueue(error, null);
                 localStorage.removeItem('token');
-
-                // Перенаправляем на страницу входа
                 globalNavigate('/signin');
                 return Promise.reject(error);
             } finally {
@@ -96,15 +77,11 @@ instance.interceptors.response.use(
     }
 );
 
-// --- ФУНКЦИИ ФОРМАТИРОВАНИЯ РЕЗУЛЬТАТОВ ДЛЯ InfoBlock (Оставлены без изменений) ---
-
 const formatPingResponse = (responses, host) => {
-    // Собираем результаты по агентам
     const results = responses.filter(r => r.success).map(r => r.result.latency_ms);
     const count = results.length;
 
     if (count === 0) {
-        // Если нет успешных ответов, но запросы вернулись, ищем ошибку
         const errorResponse = responses.find(r => !r.success);
         return [{ label: 'Статус', value: errorResponse ? `Ошибка: ${errorResponse.error}` : 'Нет успешных ответов' }];
     }
@@ -123,7 +100,6 @@ const formatPingResponse = (responses, host) => {
 };
 
 const formatHttpResponse = (responses, host) => {
-    // Используем первый успешный ответ как основной
     const firstSuccess = responses.find(r => r.success);
 
     if (!firstSuccess) {
@@ -150,7 +126,6 @@ const formatTcpResponse = (responses, host, port) => {
     const successCount = responses.filter(r => r.success && r.result.success_connect).length;
     const totalCount = responses.length;
 
-    // Собираем среднюю задержку для открытого порта
     const avgLatency = responses
         .filter(r => r.success && r.result.success_connect)
         .map(r => r.latency_ms)
@@ -174,7 +149,6 @@ const formatTcpResponse = (responses, host, port) => {
 };
 
 const formatDnsResponse = (responses, host) => {
-    // Используем первый успешный ответ, так как DNS обычно одинаков
     const firstSuccess = responses.find(r => r.success);
 
     if (!firstSuccess) {
@@ -196,8 +170,6 @@ const formatDnsResponse = (responses, host) => {
 };
 
 
-// 💡 НОВАЯ ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ОБРАБОТКИ ОШИБОК API
-// Возвращает форматированный объект ошибки для компонента InfoBlock
 const formatErrorResult = (checkType, host) => {
     return {
         title: checkType.toUpperCase(),
@@ -211,7 +183,6 @@ const formatErrorResult = (checkType, host) => {
 };
 
 
-// --- ОСНОВНЫЕ ФУНКЦИИ API (Настоящие вызовы) ---
 
 /**
  * Отправка POST-запроса для создания задачи проверки.
@@ -222,18 +193,15 @@ export const createCheck = async (host, checkType, port = 0) => {
         const payload = {
             request_type: checkType,
             host: host,
-            // Порт используется только для TCP_CONNECT, иначе 0
             port: checkType === 'TCP_CONNECT' ? port : 0,
         };
 
         const response = await instance.post('/api/v1/check', payload);
 
-        // API должен вернуть структуру с request_id
         return response.data;
 
     } catch (error) {
         console.error(`[API] Ошибка при создании задачи ${checkType}:`, error);
-        // Бросаем ошибку, чтобы вызывающая сторона (MainContainer) могла ее поймать и показать сообщение
         throw new Error('Не удалось создать задачу на сервере.');
     }
 };
@@ -248,7 +216,6 @@ export const getCheckResult = async (taskId, checkType, host, port) => {
         const response = await instance.get(`/api/v1/check/${taskId}`);
         const rawResult = response.data;
 
-        // Если responses еще пуст, возвращаем флаг продолжения опроса
         if (!rawResult.responses || rawResult.responses.length === 0) {
             return {
                 isPending: true, // Флаг, что нужно продолжать опрос
@@ -257,7 +224,6 @@ export const getCheckResult = async (taskId, checkType, host, port) => {
             };
         }
 
-        // Если ответы получены, форматируем и возвращаем готовый результат
         let formatter;
         let title = checkType.toUpperCase() + (checkType === 'TCP_CONNECT' ? ' SCAN' : ' STATUS');
 
@@ -275,24 +241,21 @@ export const getCheckResult = async (taskId, checkType, host, port) => {
                 formatter = formatDnsResponse;
                 break;
             default:
-                // Если тип проверки не распознан, возвращаем ошибку
                 return formatErrorResult(checkType, host);
         }
 
         const formattedData = formatter(rawResult.responses, host);
 
         return {
-            isPending: false, // Флаг, что опрос можно остановить
+            isPending: false, 
             title: title,
             data: formattedData,
         };
 
     } catch (error) {
         console.error(`[API] Ошибка при получении результата ${taskId}:`, error);
-        // В случае ошибки (например, 500, таймаут), возвращаем форматированный объект ошибки
         return formatErrorResult(checkType, host);
     }
 };
 
-// Экспортируем настроенный экземпляр axios по умолчанию
 export default instance;

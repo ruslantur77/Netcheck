@@ -79,7 +79,6 @@ const Button = ({ title, type, loading, onClick }) => (
     </button>
 );
 
-
 const ERROR_MESSAGES = {
     400: 'Неверный формат запроса. Проверьте введённые данные.',
     422: 'Неверный формат запроса. Проверьте введённые данные.',
@@ -109,7 +108,6 @@ function SignInPage() {
         return isEmailValid && isPasswordValid;
     };
 
-    // 💡 Используем НАСТРОЕННЫЙ API вместо заглушки
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -122,33 +120,27 @@ function SignInPage() {
         setLoading(true);
 
         try {
-            // Использование FormData для отправки данных (как в оригинальном Vue коде)
             const form = new FormData();
-            form.append('username', email); // Соответствует бэкенду
+            form.append('username', email); 
             form.append('password', password);
 
-            // ⚠️ Используем наш настроенный 'api' (с интерсепторами)
-            // Добавляем skipRefresh: true, чтобы не обновлять токен во время самого логина.
             const response = await api.post('/api/auth/login', form, { 
                 skipRefresh: true,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
-            // Успешный вход
             const accessToken = response.data.access_token;
             localStorage.setItem('token', accessToken);
             
-            // Настройка заголовка Authorization для всех последующих запросов (для текущего экземпляра 'api')
+
             api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
             
-            // Перенаправление на страницу агентов
             navigate('/agents'); 
         } catch (err) {
-            // Отображение ошибок валидации для полей
+
             setEmailWrong(true);
             setPasswordWrong(true);
 
-            // Обработка ошибок сервера
             if (err.response) {
                 const status = err.response.status;
                 setErrorMessage(
