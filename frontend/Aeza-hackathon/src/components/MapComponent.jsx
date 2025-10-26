@@ -27,7 +27,7 @@ function MapComponent({ center, countryData, dnsAddresses, ipAddress }) {
     
     const mapCenter = center || DUMMY_CENTER;
     const displayIPAddress = ipAddress || DUMMY_IP_ADDRESS;
-    const displayDNSAddresses = dnsAddresses && dnsAddresses.length > 0 ? dnsAddresses : Array(7).fill('77.52.38.64');
+    const displayDNSAddresses = dnsAddresses && dnsAddresses.length > 0 ? dnsAddresses : Array(0).fill('77.52.38.64');
 
     return (
         <div className="map-wrapper">
