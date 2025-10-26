@@ -1,4 +1,4 @@
-// components/MapComponent.jsx (Финальная рабочая версия с Leaflet)
+// components/MapComponent.jsx 
 
 import React from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
@@ -32,24 +32,19 @@ function MapComponent({ center, countryData, dnsAddresses, ipAddress }) {
     return (
         <div className="map-wrapper">
             
-            {/* 1. КОНТЕЙНЕР КАРТЫ LEAFLET */}
             <MapContainer
                 center={mapCenter}
-                zoom={3} // Начальный зум (обзор мира)
+                zoom={3}
                 scrollWheelZoom={false}
-                className="simplemaps-map-canvas" // Используем старый класс для стилей
+                className="simplemaps-map-canvas" 
             >
-                {/* Компонент для центрирования карты при изменении center */}
                 <ChangeView center={mapCenter} />
 
-                {/* Слой тайлов (Синий фон имитируем стилями) */}
                 <TileLayer
-                    // Используем стандартные тайлы OpenStreetMap
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 />
                 
-                {/* Красный маркер в заданной точке */}
                 <Marker 
                     position={mapCenter} 
                     icon={customMarkerIcon} 
@@ -58,19 +53,15 @@ function MapComponent({ center, countryData, dnsAddresses, ipAddress }) {
 
             </MapContainer>
             
-            {/* --- Блоки оверлеев (для верстки) --- */}
             
-            {/* 1. IP в левом верхнем углу */}
             <div className="map-overlay-info map-overlay-info--ip">
                 IP: <span className="ip-highlight">{displayIPAddress}</span>
             </div>
             
-            {/* 2. Country (правый верхний угол) */}
             <div className="map-overlay-info map-overlay-info--country">
                 Country: {countryData}
             </div>
             
-            {/* 3. DNS (слева по центру) */}
             <div className="map-overlay-info map-overlay-info--dns">
                 {displayDNSAddresses.map((addr, index) => (
                     <div key={index} className="dns-entry">

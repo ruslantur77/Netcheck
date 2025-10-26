@@ -3,7 +3,6 @@
 import React from 'react';
 import './NavButtons.css';
 
-// Список всех кнопок для удобства
 const BUTTONS = [
     'Info',
     'Ping',
@@ -14,9 +13,8 @@ const BUTTONS = [
 ];
 
 /**
- * Компонент панели навигации с кнопками
- * @param {string} activeTab - Имя активной вкладки
- * @param {function} onTabChange - Функция-обработчик клика
+ * @param {string} activeTab 
+ * @param {function} onTabChange 
  */
 function NavButtons({ activeTab, onTabChange }) {
   return (
