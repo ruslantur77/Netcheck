@@ -340,7 +340,7 @@ function AgentsPage() {
         <div className="agents-wrapper">
             
             <div className="agents-page">
-                <h1 style={{ fontFamily: 'JetBrains Mono, monospace', color: '#000', marginTop: '4rem' }}>Управление Агентами</h1>
+                <h1 style={{ fontFamily: 'JetBrains Mono, monospace', color: '#000', marginTop: '4rem' }}>Управление агентами</h1>
                 
                 {errorMessage && <ErrorMessage message={errorMessage} />}
                 
@@ -352,7 +352,7 @@ function AgentsPage() {
                 />
                 
                 <Button 
-                    title="Добавить Агента" 
+                    title="Добавить агента" 
                     onClick={openCreateModal} 
                 />
                 
