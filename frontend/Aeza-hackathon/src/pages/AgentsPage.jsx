@@ -215,10 +215,10 @@ const AgentModal = ({ isOpen, onClose, onAddAgent, name, setName }) => {
         <div style={overlayStyle} onClick={onClose}>
             <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
                 <button style={closeButtonStyle} onClick={onClose}>&times;</button>
-                <h2 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}>Добавить нового Агента</h2>
+                <h2 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}>Добавить нового агента</h2>
                 <div style={{ marginBottom: '10px' }}>
                     <label>
-                    <h4 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}> Название агента:</h4>
+                    <h4 style={{ marginTop: 0, fontSize: '1.2em', color: 'black' }}> Введите имя агента:</h4>
                         <input
                             type="text"
                             value={name}
