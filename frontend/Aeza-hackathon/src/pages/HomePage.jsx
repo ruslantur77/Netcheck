@@ -2,7 +2,6 @@
 import React from 'react';
 import MainContainer from '../components/MainContainer'; 
 
-// 💡 Принимаем пропсы
 function HomePage({ userIp, userLocation, userFullData, isLoading }) { 
     return (
         <MainContainer 

@@ -14,7 +14,7 @@ import AgentsPage from './pages/AgentsPage';
 function App() {
   const [userIp, setUserIp] = useState('');
   const [userLocation, setUserLocation] = useState('');
-  const [userFullData, setUserFullData] = useState(null); // 💡 НОВОЕ СОСТОЯНИЕ: для полных данных (lat, lon, timezone)
+  const [userFullData, setUserFullData] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ function App() {
       try {
         setIsLoading(true);
         
-        // 💡 Оптимизированный запрос: получаем IP, геолокацию, координаты (lat/lon) и таймзону за один раз
         const response = await axios.get('http://ip-api.com/json/?fields=status,message,country,regionName,city,query,lat,lon,timezone');
         
         if (response.data.status === 'success') {
@@ -32,9 +31,8 @@ function App() {
           
           setUserIp(ip);
           setUserLocation(locationString);
-          setUserFullData(locationData); // Сохраняем полные данные для MainContainer
+          setUserFullData(locationData); 
         } else {
-          // Если геолокация не удалась, получаем хотя бы IP через ipify
           const ipResponse = await axios.get('https://api.ipify.org?format=json');
           setUserIp(ipResponse.data.ip);
           setUserLocation('Не удалось определить геолокацию');
@@ -51,7 +49,6 @@ function App() {
       }
     };
 
-    // 💡 Удалена дублирующая логика fetchAllInOne
     fetchUserData();
   }, []);
 
@@ -70,8 +67,8 @@ function App() {
               <HomePage 
                 userIp={userIp} 
                 userLocation={userLocation} 
-                userFullData={userFullData} // 💡 Передаем полные данные
-                isLoading={isLoading} // 💡 Передаем статус загрузки
+                userFullData={userFullData} 
+                isLoading={isLoading} 
               />
             } 
           />

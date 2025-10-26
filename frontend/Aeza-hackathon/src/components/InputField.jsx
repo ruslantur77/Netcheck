@@ -3,15 +3,13 @@
 import React from 'react';
 import './InputField.css';
 
-// 💡 Принимаем новую функцию onExecute
 function InputField({ value, onChange, placeholder = 'К примеру, aeza.ru', onExecute }) {
   
   const handleKeyDown = (event) => {
-    // 💡 Если нажата клавиша Enter
     if (event.key === 'Enter') {
-      event.preventDefault(); // Предотвращаем стандартное поведение (например, отправку формы)
+      event.preventDefault(); 
       if (onExecute) {
-        onExecute(); // Вызываем переданную функцию
+        onExecute();
       }
     }
   };
@@ -24,7 +22,7 @@ function InputField({ value, onChange, placeholder = 'К примеру, aeza.ru
         onChange={onChange}
         placeholder={placeholder}
         className="main-input" 
-        onKeyDown={handleKeyDown} // 💡 Добавляем обработчик
+        onKeyDown={handleKeyDown}
       />
     </div>
   );

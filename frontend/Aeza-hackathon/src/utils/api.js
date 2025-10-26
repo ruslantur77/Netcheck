@@ -184,10 +184,6 @@ const formatErrorResult = (checkType, host) => {
 
 
 
-/**
- * Отправка POST-запроса для создания задачи проверки.
- * POST: /api/v1/check
- */
 export const createCheck = async (host, checkType, port = 0) => {
     try {
         const payload = {
@@ -207,10 +203,6 @@ export const createCheck = async (host, checkType, port = 0) => {
 };
 
 
-/**
- * Отправка GET-запроса для получения результата проверки по ID.
- * GET: /api/v1/check/{task_id}
- */
 export const getCheckResult = async (taskId, checkType, host, port) => {
     try {
         const response = await instance.get(`/api/v1/check/${taskId}`);

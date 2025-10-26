@@ -1,7 +1,6 @@
 // src/components/pages/AgentsPage.jsx
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-// import api from '../../utils/api'; // ⚠️ Отключаем реальный API
 import { useNavigate } from 'react-router-dom';
 
 const MOCK_AGENTS_DATA = {
@@ -137,7 +136,7 @@ const Button = ({ title, onClick, disabled = false, style: customStyle = {} }) =
             fontWeight: 'bold',
             marginTop: '20px',
             fontFamily: 'JetBrains Mono, monospace',
-            ...customStyle, // Для переопределения стилей
+            ...customStyle, 
         }}
     >
         {title}
@@ -311,11 +310,9 @@ function AgentsPage() {
         handleCloseModal();
     };
 
-    // --- Обработчики действий (прочие) ---
 
     const handleShowAgent = (agent) => {
         console.log('Клик по агенту:', agent);
-        // В реальном проекте: открыли бы модальное окно с деталями агента
         setActiveAgent({ ...agent }); 
         setErrorMessage(`[МОК] Вы кликнули по агенту: ${agent.name}. Детали в консоли.`);
     };
