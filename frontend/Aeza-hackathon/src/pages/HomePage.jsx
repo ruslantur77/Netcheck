@@ -2,9 +2,15 @@
 import React from 'react';
 import MainContainer from '../components/MainContainer'; 
 
-function HomePage() {
+// 💡 Принимаем пропсы
+function HomePage({ userIp, userLocation, userFullData, isLoading }) { 
     return (
-        <MainContainer /> 
+        <MainContainer 
+            userIp={userIp}
+            userLocation={userLocation}
+            userFullData={userFullData}
+            isLoading={isLoading}
+        /> 
     );
 }
 

@@ -14,6 +14,7 @@ import AgentsPage from './pages/AgentsPage';
 function App() {
   const [userIp, setUserIp] = useState('');
   const [userLocation, setUserLocation] = useState('');
+  const [userFullData, setUserFullData] = useState(null); // 💡 НОВОЕ СОСТОЯНИЕ: для полных данных (lat, lon, timezone)
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,44 +22,38 @@ function App() {
       try {
         setIsLoading(true);
         
-        const ipResponse = await axios.get('https://api.ipify.org?format=json');
-        const ip = ipResponse.data.ip;
-        setUserIp(ip);
-        const locationResponse = await axios.get(`http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,query`);
+        // 💡 Оптимизированный запрос: получаем IP, геолокацию, координаты (lat/lon) и таймзону за один раз
+        const response = await axios.get('http://ip-api.com/json/?fields=status,message,country,regionName,city,query,lat,lon,timezone');
         
-        if (locationResponse.data.status === 'success') {
-          const locationData = locationResponse.data;
+        if (response.data.status === 'success') {
+          const locationData = response.data;
+          const ip = locationData.query;
           const locationString = `${locationData.country} (${locationData.regionName}, ${locationData.city})`;
+          
+          setUserIp(ip);
           setUserLocation(locationString);
+          setUserFullData(locationData); // Сохраняем полные данные для MainContainer
         } else {
-          throw new Error(locationResponse.data.message);
+          // Если геолокация не удалась, получаем хотя бы IP через ipify
+          const ipResponse = await axios.get('https://api.ipify.org?format=json');
+          setUserIp(ipResponse.data.ip);
+          setUserLocation('Не удалось определить геолокацию');
+          setUserFullData(null);
         }
 
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
         setUserIp('Не удалось определить');
         setUserLocation('Не удалось определить');
+        setUserFullData(null);
       } finally {
         setIsLoading(false);
       }
     };
 
+    // 💡 Удалена дублирующая логика fetchAllInOne
     fetchUserData();
   }, []);
-
-
-  const fetchAllInOne = async () => {
-    try {
-      const response = await axios.get('http://ip-api.com/json/?fields=status,message,country,regionName,city,query');
-      if (response.data.status === 'success') {
-        const data = response.data;
-        setUserIp(data.query);
-        setUserLocation(`${data.country} (${data.regionName}, ${data.city})`);
-      }
-    } catch (error) {
-      console.error('Ошибка при получении данных:', error);
-    }
-  };
 
   return (
     <div className="App">
@@ -69,7 +64,17 @@ function App() {
 
       <div className="content-area">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route 
+            path="/" 
+            element={
+              <HomePage 
+                userIp={userIp} 
+                userLocation={userLocation} 
+                userFullData={userFullData} // 💡 Передаем полные данные
+                isLoading={isLoading} // 💡 Передаем статус загрузки
+              />
+            } 
+          />
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="*" element={

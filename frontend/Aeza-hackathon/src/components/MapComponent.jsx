@@ -2,32 +2,27 @@
 
 import React from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet'; // Импортируем Leaflet для настройки маркера
-import './MapComponent.css'; // Ваши стили для оверлеев
+import L from 'leaflet'; 
+import './MapComponent.css'; 
 
-// --- КОНСТАНТЫ ---
-const DUMMY_CENTER = [47.2357, 39.712]; // Ростов-на-Дону
+const DUMMY_CENTER = [47.2357, 39.712]; 
 const DUMMY_IP_ADDRESS = '178.76.255.88';
 
-// --- НАСТРОЙКА КРАСНОГО МАРКЕРА ---
-// Создаем кастомную иконку, чтобы она была красным кругом, как на макете
+
 const customMarkerIcon = new L.DivIcon({
-    className: 'leaflet-blue-marker', // Используем этот класс в CSS
+    className: 'leaflet-blue-marker', 
     iconSize: [16, 16],
-    iconAnchor: [8, 8], // Центрируем маркер
+    iconAnchor: [8, 8], 
     popupAnchor: [0, -8],
 });
 
-// --- КОМПОНЕНТ ДЛЯ ПЕРЕФОКУСИРОВКИ КАРТЫ (опционально) ---
-// Leaflet MapContainer не реагирует на изменение props, 
-// поэтому нужен хук для центрирования
 function ChangeView({ center }) {
   const map = useMap();
-  map.setView(center, map.getZoom()); // Сохраняем зум, но меняем центр
+  map.setView(center, map.getZoom()); 
   return null;
 }
 
-// --- ОСНОВНОЙ КОМПОНЕНТ КАРТЫ ---
+
 function MapComponent({ center, countryData, dnsAddresses, ipAddress }) {
     
     const mapCenter = center || DUMMY_CENTER;
