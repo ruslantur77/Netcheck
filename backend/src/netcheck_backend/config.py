@@ -44,6 +44,8 @@ class Config(BaseSettings):
     AGENT_HEARTBEAT_INTERVAL_SEC: int
     AGENT_HEARTBEAT_TIMEOUT_SEC: int
 
+    ALLOWED_ORIGINS: str
+
     @property
     def RMQ_URL(self) -> str:
         return f"amqp://{self.RMQ_USER}:{self.RMQ_PASS}@{self.RMQ_HOST}:{self.RMQ_PORT}/{self.RMQ_AGENTS_VHOST}"
