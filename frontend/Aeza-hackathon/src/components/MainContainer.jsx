@@ -42,6 +42,7 @@ const DEFAULT_PORT_MAP = {
 // Вспомогательная функция для генерации данных вкладки "Info"
 const createInfoData = (fullData, isLoading) => {
     if (isLoading) {
+        // 🚀 ИСПРАВЛЕНО: используем DUMMY_INFO_DATA (массив) вместо DUMMY_DATA (объект)
         return DUMMY_INFO_DATA.map(item => ({ ...item, value: 'Загрузка...' }));
     }
     if (fullData) {
@@ -127,7 +128,7 @@ function MainContainer({ userIp, userLocation, userFullData, isLoading }) {
     }, [startCheck]);
 
 
-    // 💡 НОВАЯ ФУНКЦИЯ: Обработка нажатия Enter в поле ввода
+    // 💡 ФУНКЦИЯ: Обработка нажатия Enter в поле ввода
     const handleExecute = useCallback(() => {
         // Если пользователь нажимает Enter на вкладке 'Info', переключаемся на 'Ping' и запускаем его
         if (activeTab === 'Info') {
@@ -181,7 +182,7 @@ function MainContainer({ userIp, userLocation, userFullData, isLoading }) {
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="Введите узел или IP адрес"
-                onExecute={handleExecute} // 💡 Интеграция обработчика Enter
+                onExecute={handleExecute} // Интеграция обработчика Enter
             />
 
             <p className="label-text buttons-label">Информация для вашего IP (Info) или целевого узла (остальные):</p>
