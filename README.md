@@ -1,4 +1,5 @@
 # Netcheck
+<img width="1666" height="1079" alt="image_2025-10-26_11-10-47" src="https://github.com/user-attachments/assets/02bfb3c0-5794-43c7-a111-c2f1471f53f5" />
 
 Сервис для проверки доступности сайтов, IP и хостов.
 
